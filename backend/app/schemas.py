@@ -1,6 +1,23 @@
 """Validated order fields shared by extraction and later API phases."""
 
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Annotated
+
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+
+
+Message = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, strict=True)]
+
+
+class ExtractRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    message: Message
+
+
+class BatchExtractRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    messages: list[Message] = Field(min_length=1)
 
 
 class Order(BaseModel):
