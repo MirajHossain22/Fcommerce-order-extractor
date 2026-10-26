@@ -2,7 +2,7 @@
 
 Convert Bangla, Banglish, and English seller chat messages into structured orders.
 
-Phases 1–2 provide the order schema, digit/phone normalization, environment configuration, Gemini extraction, a command-line interface, and mocked tests. The API arrives in Phase 3.
+Phases 1–3 provide the order schema, digit/phone normalization, environment configuration, Gemini extraction, a command-line interface, FastAPI endpoints, SQLite storage, CSV export, and tests with mocked LLM calls.
 
 ## Day 1 verification
 
@@ -49,3 +49,68 @@ The request uses Gemini's [structured JSON output](https://ai.google.dev/gemini-
 The prompt forbids guessing names, phones, addresses, or other missing values. Text fields must be exact source substrings; unsupported text is discarded with a warning. Non-orders return null order fields. Quantity defaults to null, and only explicit positive quantities are requested. Classification and quantity interpretation still depend on the model; passing mocked tests does not establish live extraction accuracy.
 
 `backend/tests/test_extractor.py::test_synthetic_message_plumbing` contains ten synthetic orders in Bangla, Banglish, English, and mixed text plus two non-orders. These tests use mocked outputs to check validation and null preservation. To check the model by hand, run those messages individually through the CLI and compare every field against the source; omit names, phones, addresses, and quantities in some messages and verify that they remain null. Live checks require a configured `.env` and are separate from the offline test suite.
+
+## Phase 3: API, storage, and CSV
+
+Install the updated requirements, then run from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/docs` to try the endpoints with synthetic messages.
+
+| Endpoint | Request body | Response |
+| --- | --- | --- |
+| `POST /extract` | `{"message":"TEST_PRODUCT 2 ta chai"}` | One extracted order, including null fields and warnings |
+| `POST /extract/batch` | `{"messages":["TEST_PRODUCT 2 ta chai","hello"]}` | Extracted results in input order |
+| `GET /orders` | None | Saved orders in insertion order |
+| `GET /orders/export.csv` | None | Downloadable `orders.csv` |
+
+Extraction automatically saves only results with `is_order=true`. Non-orders are returned without being saved. A batch saves its orders in one SQLite transaction after every extraction succeeds; an extraction failure saves none of that batch. Repeating a successful POST creates additional rows; there is no deduplication.
+
+SQLite uses Python's built-in `sqlite3`. The ignored `orders.sqlite3` file is created in the repository root on API startup, and orders survive restarts. The CLI remains extraction-only. Listing and exporting stored orders do not require Gemini credentials.
+
+CSV contains all order fields, including `warnings` as a JSON array. Nulls become empty cells; a UTF-8 BOM preserves Bangla text in spreadsheet applications. CSV quotes commas, quotes, and newlines. Import the phone column as text to retain leading zeros.
+
+Blank messages, empty batches, invalid types, and unknown request fields return HTTP 422. Missing or invalid LLM settings return 503. Provider or extraction failures return 502 without including credentials or raw provider output.
+
+Run `.\.venv\Scripts\python.exe -m pytest -q` for the offline suite. Phase 3 verification: **118 passed**. Tests use temporary databases and mocked LLM calls; no API credits are needed. The installed Starlette test client emits an upstream deprecation warning for its `httpx` integration; the tests currently pass. Live model accuracy remains unverified, and the evaluation dataset and scoring are deferred to Phase 4.
+
+## Phase 4: evaluation
+
+`eval/dataset.jsonl` contains 50 user-authored messages: 15 clean, 15 messy, 10 in the supplied `mixed` category, 5 missing key fields, and 5 non-orders. Names and addresses were replaced with clearly synthetic labels in both messages and expected outputs; Bangla labels retain Bangla script. The location mentioned in a non-order question was also replaced. Other labels and phone fixtures were preserved, and `notes: null` was added to every expected output.
+
+Each nonblank line must be one JSON object with `message` and `expected`. Optional string fields `id` and `category` are preserved in failure reports but are not scored or sent to the LLM. Include all seven scored fields explicitly, using JSON `null` for missing information:
+
+```json
+{"message":"TEST_PRODUCT ২টা চাই, phone 00000","expected":{"is_order":true,"customer_name":null,"phone":null,"address":null,"product":"TEST_PRODUCT","quantity":2,"notes":null}}
+{"message":"hello, কেমন আছেন?","expected":{"is_order":false,"customer_name":null,"phone":null,"address":null,"product":null,"quantity":null,"notes":null}}
+```
+
+These two format examples are not the evaluation dataset. Use obviously synthetic names, addresses, and phone fixtures. Expected phones must already be normalized; invalid phones are `null`. Expected quantities must be positive integers or `null`. `notes` must be present, even when null. Optional `warnings` are accepted but not scored.
+
+From the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 eval/run_eval.py
+```
+
+The evaluator validates the whole file before calling Gemini, then writes `eval/results.md`. It accepts any nonempty dataset size so you can check a small subset first; 50 messages is the planned dataset size, not a program restriction. To preserve a run, choose a separate output path:
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 eval/run_eval.py --dataset eval/dataset.jsonl --output eval/results-first.md
+```
+
+Metrics use exact equality, including nulls, case, and whitespace. There is no fuzzy comparison or normalization of labels during scoring:
+
+- **Per-field accuracy:** correct values for that field divided by all dataset messages.
+- **Overall accuracy:** messages with all seven fields correct divided by all dataset messages.
+- **Mean field accuracy:** correct values across all seven fields divided by seven times the message count.
+
+Every mismatch is listed with its message, expected output, actual output, and mismatched fields. Extraction errors count as incorrect for all seven fields and appear in the failure list; remaining messages are still evaluated. This makes the score an end-to-end measure when provider failures occur. Matching nulls count as correct, so inspect the failure list alongside aggregate scores.
+
+Invalid or empty datasets leave an existing report untouched and exit with code 1. A completed run with extraction errors saves the report and exits with code 1; a completed run without extraction errors exits with code 0, even if some predictions are wrong. Default runs replace `eval/results.md`.
+
+Phase 4 offline verification: **139 tests passed**, including hand-calculated scoring, failures, nulls, dataset validation, metadata handling, and report output. The imported dataset passes validation. The first live run attempted all 50 messages but produced 50 extraction errors and no usable predictions; see `eval/results-first.md`. Its 0% end-to-end score is not a model-accuracy measurement. A separate diagnostic request returned HTTP 429 and reported an exhausted free-tier daily request limit of 20 for the configured model. The evaluator did not retain individual error causes, so not all run failures can be attributed to quota exhaustion. The supplied category labels are preserved, including some entirely Bangla messages labeled `mixed`.
