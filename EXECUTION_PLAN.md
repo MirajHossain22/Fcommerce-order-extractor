@@ -14,7 +14,7 @@ The proposed flow is: seller creates or extracts an order draft, checks it, and 
 
 Steps 2–6 are implemented for local use, with **218 passing offline tests**. The seller dashboard supports browser sessions, extraction review, manual drafts, search/filtering, and status actions. Sellers can create and copy checkout links. Buyers can review items, enter delivery details, confirm once, recover a receipt, and open a private tracking page. See [setup and examples](BACKEND_CHECKOUT.md).
 
-Step 7 is complete locally: buyers see seller-entered status, history, courier name, and parcel reference. Step 8 now has verified backup/restore tooling, an explicit persistent-storage launcher, host checks, a health endpoint, a Docker starter, and a Render Blueprint for a single paid Singapore instance with a persistent disk. The Docker engine was unavailable, so the image is not build-verified. Desktop and 390px mobile flows were checked in headless Chrome with synthetic data. The app has not been deployed; the Render Blueprint still requires account-side creation and secrets.
+Step 7 is complete locally: buyers see seller-entered status, history, courier name, and parcel reference. Step 8 now has verified backup/restore tooling, an explicit persistent-storage launcher, host checks, a health endpoint, a locally verified Docker image, and an optional paid Render Blueprint. The image passed health and named-volume restart persistence checks with synthetic data. Desktop and 390px mobile flows were checked in headless Chrome. The app has not been deployed; hosting is paused while local Docker is evaluated.
 
 Step 10 is also implemented locally: seller catalog, variant selection, atomic stock deductions, cancellation restoration, explicit return restocking, and low-stock displays. Manual items remain untracked. See [inventory behavior and limits](INVENTORY.md). Step 9 address reuse remains a separate pending feature.
 
@@ -111,8 +111,8 @@ Completion check: a seller's status update appears on the buyer's tracking page,
 - [x] Cover duplicate submission, expired links, missing details, unauthorized access, and changed prices.
 - [x] Verify local mobile use, persistence, database migration, and backup/restore with synthetic data.
 - [x] Prepare persistent-storage configuration, startup host/secret checks, a health endpoint, and a container starter.
-- [x] Select Render and add a Blueprint for a paid single-instance SQLite pilot in Singapore.
-- [ ] Build and verify the container on a running Docker engine.
+- [x] Add an optional Render Blueprint for a paid single-instance SQLite pilot in Singapore; the user declined payment for now.
+- [x] Build and verify the container, health endpoint, and named-volume persistence on a running Docker engine.
 - [ ] Create the Render service, then verify its generated HTTPS origin, proxy settings, persistent volume, backups, and secrets before using real orders.
 - [ ] Run a small seller/buyer pilot and record completion time, checkout abandonment, corrected details, duplicate orders, and status enquiries.
 
@@ -148,4 +148,4 @@ Completion check: external failures are visible, retries do not create duplicate
 
 ## Next implementation task
 
-Continue Step 8 using DEPLOYMENT.md: create the Render Blueprint service, enter secrets, verify the generated HTTPS origin and persistent disk, then run a recovery drill and small pilot. Step 10 inventory is complete locally. Continue Step 9 address reuse as a separate batch while the Render account setup awaits the user; all unchecked items above remain planned work.
+Continue local Docker testing using DEPLOYMENT.md. When ready to host, choose either the existing paid Render Blueprint or a free host with persistent storage, then verify HTTPS, recovery, and a small pilot. Step 10 inventory is complete locally. Step 9 address reuse remains a separate batch; all unchecked items above remain planned work.

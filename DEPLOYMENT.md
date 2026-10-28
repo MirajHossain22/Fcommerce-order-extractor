@@ -1,6 +1,6 @@
 # Pilot operations and deployment preparation
 
-Render is selected for the pilot and `render.yaml` defines the service, but the service has not been created in a Render account yet. The Blueprint uses Docker, the Singapore region, one `0.5c-512mb` instance, a 5 GB disk mounted at `/data`, and `/healthz`. The local flow and recovery checks use synthetic data. The Docker engine was unavailable during this batch, so the image has not been built locally.
+`render.yaml` remains available as an optional paid Render configuration, but no hosted service has been created. The local flow and recovery checks use synthetic data. On October 28, 2026, the Docker image built successfully, `/healthz` passed, and a synthetic draft survived a container restart on a named volume. Hosting is intentionally paused while local Docker is evaluated.
 
 ## 1. Keep a recoverable database
 
@@ -53,15 +53,16 @@ The launcher disables access logs so checkout/tracking tokens are not routinely 
 
 The Dockerfile runs as a non-root user, copies only application code/static assets, and expects persistent storage mounted at `/data`. `.dockerignore` excludes `.env`, Git metadata, databases, backups, and the local virtual environment from the build context. Configure secrets at runtime; do not bake them into an image.
 
-When Docker is available:
+Run locally from PowerShell. Replace the example seller key with your own long random key; keeping it in a process environment variable avoids PowerShell stripping the JSON quotes:
 
 ```powershell
 docker build -t fcommerce-order-desk .
 docker volume create fcommerce-orders
-docker run --name fcommerce-order-desk -p 127.0.0.1:8000:8000 --mount source=fcommerce-orders,target=/data --env SELLER_API_KEYS --env ALLOWED_HOSTS --env FORWARDED_ALLOW_IPS fcommerce-order-desk
+$env:SELLER_API_KEYS = '{"replace-with-a-random-key-at-least-32-characters":"local-shop"}'
+docker run --name fcommerce-order-desk -p 127.0.0.1:8000:8000 --mount source=fcommerce-orders,target=/data --env SELLER_API_KEYS -e ALLOWED_HOSTS=localhost,127.0.0.1 -e FORWARDED_ALLOW_IPS=127.0.0.1 fcommerce-order-desk
 ```
 
-Set the named environment variables first. If using a bind mount instead of a named volume, give container UID 10001 write access to the mounted directory. This image is a starting configuration; build, startup, volume permissions, and restart persistence must be verified on the actual host. Dependencies currently use the repository's version ranges, not a reproducible lockfile.
+Open `http://127.0.0.1:8000` and sign in with the key inside `SELLER_API_KEYS`. Stop and start the same container with `docker stop fcommerce-order-desk` and `docker start fcommerce-order-desk`; the named volume retains SQLite data. If using a bind mount instead, give container UID 10001 write access to the directory. Dependencies currently use repository version ranges rather than a reproducible lockfile.
 
 ## 5. Finish the hosted pilot
 
@@ -78,7 +79,8 @@ The disk makes this a paid, single-instance SQLite pilot. Render does not allow 
 - [x] Choose Render, Singapore, a single paid web instance, and a persistent disk layout.
 - [ ] Create the Blueprint in the Render account and record its generated hostname.
 - [ ] Choose a protected backup destination outside Render.
-- [ ] Build/start the app and verify persistent data after a restart or container replacement.
+- [x] Build/start the app locally and verify persistent data after a container restart.
+- [ ] Verify persistent data after a container replacement on the eventual host.
 - [ ] Configure real HTTPS, HTTP-to-HTTPS redirection, exact hosts, and trusted proxy addresses.
 - [ ] Verify login, Secure session cookies, logout, checkout sharing across devices, confirmation retries, courier display, and tracking through the public origin.
 - [ ] Verify rejected cross-origin writes and seller isolation through the proxy.
