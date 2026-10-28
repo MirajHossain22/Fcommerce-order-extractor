@@ -9,3 +9,8 @@ __pycache__/
 *.sqlite3
 node_modules/
 dist/
+backups/
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-wal
+*.db-shm

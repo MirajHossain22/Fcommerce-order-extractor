@@ -2,6 +2,14 @@
 
 Convert Bangla, Banglish, and English seller chat messages into structured orders.
 
+See [the step-by-step execution plan](EXECUTION_PLAN.md) for verified progress, remaining work, and the new Messenger checkout-link idea, including buyer confirmation, tracking, saved addresses, and stock management.
+
+The seller dashboard, browser sessions, checkout links, buyer form, retry-safe confirmation, receipts, and private status tracking are implemented for local use. See [the setup and usage guide](BACKEND_CHECKOUT.md). Configure `SELLER_API_KEYS` separately from the AI provider's `API_KEY`, start FastAPI, and open `http://127.0.0.1:8000/`. Seller APIs accept `Authorization: Bearer <seller-key>`; the dashboard exchanges the key for an HttpOnly session cookie. Buyer links need no seller key. Courier API integration remains planned work.
+
+Seller-entered courier details now appear on buyer tracking pages. [Pilot operations and deployment preparation](DEPLOYMENT.md) covers verified backup/restore tooling, persistent storage, the deployment launcher, and the container starter. Hosting and real HTTPS validation remain pending.
+
+[Catalog and stock management](INVENTORY.md) now supports size/color variants, confirmation-time stock deduction, cancellation restoration, and inspected-return restocking. Manual items remain explicitly untracked.
+
 Phases 1–3 provide the order schema, digit/phone normalization, environment configuration, Gemini extraction, a command-line interface, FastAPI endpoints, SQLite storage, CSV export, and tests with mocked LLM calls.
 
 ## Day 1 verification
@@ -29,7 +37,7 @@ Set `PROVIDER`, `MODEL`, and `API_KEY` in `.env` when configuring extraction. `l
 - Normalize phone candidates before constructing `Order`, passing along any warnings. The schema accepts only normalized phones.
 - All test data is synthetic. Repeated-zero phone fixtures exist solely for format validation; they are never used to contact anyone.
 
-`backend/app` holds implementation, `backend/tests` holds tests, and `eval` and `frontend` are reserved directories for later phases.
+`backend/app` holds implementation, `backend/tests` holds tests, `eval` contains the evaluation dataset and tooling, and `frontend` contains the seller dashboard and buyer checkout/tracking pages.
 
 ## Phase 2: extract from the command line
 
@@ -114,3 +122,13 @@ Every mismatch is listed with its message, expected output, actual output, and m
 Invalid or empty datasets leave an existing report untouched and exit with code 1. A completed run with extraction errors saves the report and exits with code 1; a completed run without extraction errors exits with code 0, even if some predictions are wrong. Default runs replace `eval/results.md`.
 
 Phase 4 offline verification: **139 tests passed**, including hand-calculated scoring, failures, nulls, dataset validation, metadata handling, and report output. The imported dataset passes validation. The first live run attempted all 50 messages but produced 50 extraction errors and no usable predictions; see `eval/results-first.md`. Its 0% end-to-end score is not a model-accuracy measurement. A separate diagnostic request returned HTTP 429 and reported an exhausted free-tier daily request limit of 20 for the configured model. The evaluator did not retain individual error causes, so not all run failures can be attributed to quota exhaustion. The supplied category labels are preserved, including some entirely Bangla messages labeled `mixed`.
+
+## Phase 5: regex baseline
+
+The local regex extractor in `eval/baseline.py` provides a deterministic comparison that needs no credentials or network calls. Run it against the same dataset:
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 eval/run_eval.py --extractor regex
+```
+
+The first baseline run scored **46.00% whole-order accuracy (23/50)** and **83.43% mean field accuracy**, with zero extraction errors. Results and individual mismatches are in `eval/results-baseline.md`. The baseline uses only explicit labels and a small set of English, Banglish, and Bangla patterns; it intentionally does not use the expected labels during extraction.
