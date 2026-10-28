@@ -138,6 +138,20 @@ def test_session_login_origin_and_key_checks(setup):
     assert client.post("/session", json={"key": "wrong"}, headers={"X-Requested-With": "checkout-app"}).status_code == 401
 
 
+def test_oversized_login_key_is_rejected_without_a_session(setup):
+    _, client, _, _ = setup
+    response = client.post("/session", json={"key": "x" * 513}, headers={"X-Requested-With": "checkout-app"})
+    assert response.status_code == 422
+    assert "seller_session" not in response.headers.get("set-cookie", "")
+
+
+@pytest.mark.parametrize("authorization", ["", "Basic test-seller-secret", "Bearer", "Bearer wrong", "Bearer test-seller-secret extra"])
+def test_malformed_authorization_is_rejected(setup, authorization):
+    _, client, _, _ = setup
+    headers = {"Authorization": authorization} if authorization else {}
+    assert client.get("/seller/orders", headers=headers).status_code == 401
+
+
 def test_expired_session_and_key_revocation(setup):
     database, client, _, _ = setup
     login(client)
@@ -164,3 +178,11 @@ def test_html_and_assets_are_served_with_security_headers(setup):
         assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
     assert "Your shop, in order." in client.get("/").text
     assert "অর্ডার নিশ্চিত করুন" in client.get(link["buyer_path"]).text
+
+
+@pytest.mark.parametrize("path", ["/.env", "/assets/../.env", "/assets/%2e%2e/.env", "/assets/%2e%2e%2f.env"])
+def test_static_file_traversal_does_not_expose_environment(setup, path):
+    _, client, _, _ = setup
+    response = client.get(path)
+    assert response.status_code in {404, 405}
+    assert "API_KEY" not in response.text

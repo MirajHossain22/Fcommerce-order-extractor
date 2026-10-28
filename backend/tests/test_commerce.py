@@ -170,3 +170,15 @@ def test_incomplete_draft_cannot_confirm_or_share(client):
 def test_invalid_drafts_cannot_tamper_with_money_or_owner(client, data):
     assert client.post("/seller/orders", json=data, headers=AUTH).status_code == 422
     assert client.get("/seller/orders", headers=AUTH).json() == []
+
+
+@pytest.mark.parametrize("data", [
+    {**DRAFT, "shop_name": "x" * 201},
+    {**DRAFT, "customer_name": "x" * 201},
+    {**DRAFT, "address": "x" * 2001},
+    {**DRAFT, "items": [{"product": "x" * 301, "quantity": 1, "unit_price_paisa": 100}]},
+    {**DRAFT, "items": [{"product": "test", "size": "x" * 81, "quantity": 1, "unit_price_paisa": 100}]},
+])
+def test_oversized_draft_fields_are_rejected(client, data):
+    assert client.post("/seller/orders", json=data, headers=AUTH).status_code == 422
+    assert client.get("/seller/orders", headers=AUTH).json() == []

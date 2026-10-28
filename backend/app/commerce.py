@@ -13,27 +13,27 @@ from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.normalize import normalize_phone
-from app.schemas import Message, Order
+from app.schemas import Order, Text64, Text80, Text100, Text150, Text200, Text300, Text2000
 from app import inventory
 
 
 class LineItem(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    product: Message
-    product_id: Message | None = None
-    variant_id: Message | None = None
-    size: Message | None = None
-    color: Message | None = None
+    product: Text300
+    product_id: Text64 | None = None
+    variant_id: Text64 | None = None
+    size: Text80 | None = None
+    color: Text80 | None = None
     quantity: int = Field(gt=0, le=10000)
     unit_price_paisa: int = Field(ge=0, le=100000000)
 
 
 class Draft(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    shop_name: Message = "Online shop"
-    customer_name: Message | None = None
+    shop_name: Text200 = "Online shop"
+    customer_name: Text200 | None = None
     phone: str | None = None
-    address: Message | None = None
+    address: Text2000 | None = None
     items: list[LineItem] = Field(default_factory=list, max_length=100)
     delivery_charge_paisa: int = Field(default=0, ge=0, le=100000000)
     payment_method: Literal["cash_on_delivery"] = "cash_on_delivery"
@@ -61,16 +61,16 @@ class LinkOptions(BaseModel):
 
 class Shipment(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    courier_name: Message = Field(max_length=100)
-    tracking_reference: Message = Field(max_length=150)
+    courier_name: Text100
+    tracking_reference: Text150
 
 
 class BuyerConfirmation(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     version: int = Field(ge=1)
-    customer_name: Message = Field(max_length=200)
+    customer_name: Text200
     phone: str = Field(max_length=40)
-    address: Message = Field(max_length=2000)
+    address: Text2000
 
     @field_validator("phone")
     @classmethod

@@ -7,14 +7,14 @@ from pathlib import Path
 
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, Field
-from app.schemas import Message
+from app.schemas import Text80, Text200
 
 
 class VariantCreate(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    product: Message = Field(max_length=200)
-    size: Message | None = Field(default=None, max_length=80)
-    color: Message | None = Field(default=None, max_length=80)
+    product: Text200
+    size: Text80 | None = None
+    color: Text80 | None = None
     unit_price_paisa: int = Field(ge=0, le=100000000)
     stock: int = Field(ge=0, le=1000000)
 

@@ -5,7 +5,15 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 
-Message = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, strict=True)]
+Text64 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64, strict=True)]
+Text80 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80, strict=True)]
+Text100 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100, strict=True)]
+Text150 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150, strict=True)]
+Text200 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200, strict=True)]
+Text300 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=300, strict=True)]
+Text2000 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000, strict=True)]
+Message = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10_000, strict=True)]
+WarningText = Annotated[str, StringConstraints(max_length=500, strict=True)]
 
 
 class ExtractRequest(BaseModel):
@@ -17,7 +25,7 @@ class ExtractRequest(BaseModel):
 class BatchExtractRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    messages: list[Message] = Field(min_length=1)
+    messages: list[Message] = Field(min_length=1, max_length=50)
 
 
 class Order(BaseModel):
@@ -26,10 +34,10 @@ class Order(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     is_order: bool
-    customer_name: str | None = None
+    customer_name: str | None = Field(default=None, max_length=200)
     phone: str | None = Field(default=None, pattern=r"^01[3-9][0-9]{8}$")
-    address: str | None = None
-    product: str | None = None
+    address: str | None = Field(default=None, max_length=2000)
+    product: str | None = Field(default=None, max_length=500)
     quantity: int | None = Field(default=None, gt=0)
-    notes: str | None = None
-    warnings: list[str] = Field(default_factory=list)
+    notes: str | None = Field(default=None, max_length=2000)
+    warnings: list[WarningText] = Field(default_factory=list, max_length=50)
