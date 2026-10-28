@@ -79,13 +79,14 @@ try {
   await fill('#seller-key', key); await click('#login-form button');
   await waitFor("!document.querySelector('#workspace').hidden && document.querySelector('#line-items input')", 'seller workspace');
   await evaluate("document.querySelector('#catalog-panel').open = true");
-  await fill('#catalog-product', 'Cotton panjabi'); await fill('#catalog-size', 'M'); await fill('#catalog-color', 'Olive');
+  const xssProduct = '<img src=x onerror="window.__xss=true">';
+  await fill('#catalog-product', xssProduct); await fill('#catalog-size', 'M'); await fill('#catalog-color', 'Olive');
   await fill('#catalog-price', '850'); await fill('#catalog-stock', '3'); await click('#catalog-form button');
   await waitFor("document.querySelector('#catalog-list').textContent.includes('3 available') && !document.querySelector('#new-order').disabled", 'catalog variant created');
   await click('#new-order');
   await fill('[name="shop_name"]', 'Dhaka Cotton');
   await evaluate("(() => {const picker=document.querySelector('[data-field=variant]'); picker.selectedIndex=1; picker.dispatchEvent(new Event('change', {bubbles:true}));})()");
-  assert.equal(await evaluate("document.querySelector('[data-field=product]').value"), 'Cotton panjabi');
+  assert.equal(await evaluate("document.querySelector('[data-field=product]').value"), xssProduct);
   await fill('[data-field="quantity"]', '2'); await fill('[data-field="price"]', '850');
   await fill('[name="delivery"]', '80'); await click('#save-draft');
   await waitFor("!document.querySelector('#saved-actions').hidden && !document.querySelector('#create-link').disabled", 'draft saved');
@@ -143,8 +144,9 @@ try {
   await click('#logout');
   await waitFor("!document.querySelector('#login-panel').hidden && document.querySelector('#workspace').hidden", 'seller logout');
   assert.equal(await evaluate("document.querySelector('#seller-key').value"), '');
+  assert.equal(await evaluate("window.__xss === true"), false);
   assert.deepEqual(browserErrors, []);
-  console.log(JSON.stringify({result: 'passed', checks: ['seller login', 'catalog creation and variant selection', 'computed total', 'shareable link', 'mobile layout', 'buyer confirmation and stock deduction', 'receipt reload', 'one order only', 'seller status tracking', 'session restoration', 'courier details saved and displayed', 'seller UI status update', 'inspected return restocked', 'logout', 'no JavaScript exceptions'], artifacts: work}, null, 2));
+  console.log(JSON.stringify({result: 'passed', checks: ['seller login', 'catalog creation and variant selection', 'stored XSS payload rendered as text', 'computed total', 'shareable link', 'mobile layout', 'buyer confirmation and stock deduction', 'receipt reload', 'one order only', 'seller status tracking', 'session restoration', 'courier details saved and displayed', 'seller UI status update', 'inspected return restocked', 'logout', 'no JavaScript exceptions'], artifacts: work}, null, 2));
 } catch (error) {
   if (ws?.readyState === WebSocket.OPEN) {
     try {

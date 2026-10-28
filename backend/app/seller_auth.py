@@ -11,7 +11,7 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 from fastapi import Depends, Header, HTTPException, Request, Response
-from pydantic import BaseModel, ConfigDict, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 
 COOKIE = "seller_session"
@@ -33,7 +33,7 @@ def check_origin(request: Request) -> None:
 
 class Login(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    key: SecretStr
+    key: SecretStr = Field(min_length=1, max_length=512)
 
 
 def seller_auth(keys: dict[str, str] | None = None, database: Path | None = None):

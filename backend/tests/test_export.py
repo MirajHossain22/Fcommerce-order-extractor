@@ -2,6 +2,8 @@ import csv
 import io
 import json
 
+import pytest
+
 from app.export import orders_to_csv
 from app.schemas import Order
 
@@ -38,3 +40,12 @@ def test_nulls_are_empty_cells_and_rows_keep_order() -> None:
         for field in ("customer_name", "phone", "address", "product", "quantity", "notes"):
             assert row[field] == ""
         assert row["warnings"] == "[]"
+
+
+@pytest.mark.parametrize("dangerous", ["=1+1", "+SUM(1,2)", "-2+3", "@TEST", "  =1+1", "\t@TEST"])
+def test_formula_like_text_is_neutralized(dangerous: str) -> None:
+    row = list(csv.DictReader(io.StringIO(orders_to_csv([
+        Order(is_order=True, customer_name=dangerous, address=dangerous, product=dangerous, notes=dangerous),
+    ]))))[0]
+    for field in ("customer_name", "address", "product", "notes"):
+        assert row[field] == "'" + dangerous

@@ -109,6 +109,17 @@ def test_invalid_requests_never_call_llm(client: TestClient, endpoint: str, body
     assert client.get("/orders").json() == []
 
 
+@pytest.mark.parametrize(("endpoint", "body"), [
+    ("/extract", {"message": "x" * 10_001}),
+    ("/extract/batch", {"messages": ["test"] * 51}),
+])
+def test_oversized_extraction_requests_never_call_llm(client: TestClient, endpoint: str, body: dict[str, object]) -> None:
+    with patch("app.main.extract_order") as llm:
+        result = client.post(endpoint, json=body)
+    assert result.status_code == 422
+    llm.assert_not_called()
+
+
 def test_csv_download_includes_saved_unicode_and_warnings(client: TestClient) -> None:
     order = Order(is_order=True, product="পরীক্ষা পণ্য", address='TEST_ADDRESS, "000"\nTEST_BLOCK', warnings=["Invalid phone"])
     with patch("app.main.extract_order", return_value=order):

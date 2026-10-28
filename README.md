@@ -2,7 +2,7 @@
 
 Turn messy Bangla, Banglish, and English Facebook or WhatsApp seller messages into structured, reviewable orders. The project combines validated Gemini extraction with a deterministic regex baseline, a FastAPI/SQLite backend, evaluation tooling, and mobile seller/buyer workflows.
 
-> Portfolio status: the complete local MVP is implemented and covered by 218 offline tests. Live Gemini accuracy is not yet measured because the recorded evaluation run hit provider failures/quota; the manual checkout flow works without Gemini.
+> Portfolio status: the complete local MVP is implemented and covered by 241 offline tests. Live Gemini accuracy is not yet measured because the recorded evaluation run hit provider failures/quota; the manual checkout flow works without Gemini.
 
 ## What it does
 
@@ -100,6 +100,8 @@ See [results-baseline.md](eval/results-baseline.md) for baseline failures and [r
 - Bangla digits are converted to English digits.
 - Phones are stripped of spaces/dashes, `+880`/`880` is converted to `0`, and only `^01[3-9]\d{8}$` is accepted.
 - Invalid phones become `null` and add a warning; malformed model JSON is retried once.
+- Oversized extraction batches and order text are rejected before provider or storage work.
+- CSV exports neutralize formula-like user text before it reaches spreadsheet software.
 
 ## Current limits
 
