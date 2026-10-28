@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Order desk · F-commerce</title><link rel="stylesheet" href="/assets/styles.css"><script src="/assets/seller.js" type="module"></script></head>
+<body>
+<section id="login-panel" class="login panel">
+  <div class="brand">order<span>desk</span><span class="brand-dot"></span></div>
+  <p class="eyebrow">LESS CHAT. CLEARER ORDERS.</p><h1>Your shop, in order.</h1>
+  <p class="muted">Review a draft, share a checkout link, and follow each order from confirmation to delivery.</p>
+  <form id="login-form"><label>Seller access key<input id="seller-key" type="password" required autocomplete="current-password"></label><button type="submit" disabled>Open my order desk <span aria-hidden="true">→</span></button></form>
+  <noscript>Please enable JavaScript to use the order desk.</noscript>
+  <p id="login-message" role="status" class="notice"></p><p class="small muted">Use the access key configured for your shop. Your key is not saved in browser storage.</p>
+</section>
+<div id="workspace" hidden>
+  <aside class="sidebar"><div class="brand">order<span>desk</span><span class="brand-dot"></span></div><p class="eyebrow">SELLER WORKSPACE</p><div class="nav-active">▤ &nbsp; Orders</div><div class="sidebar-bottom"><p id="seller-name" class="small"></p><button id="logout" class="secondary">Sign out</button><p class="small muted">Simple orders.<br>Room to grow.</p></div></aside>
+  <main class="desk">
+    <header class="page-head"><div><p class="eyebrow">YOUR DAILY ORDER DESK</p><h1>A little less back-and-forth.</h1><p class="muted">Turn a conversation into an order everyone can follow.</p></div><button id="new-order">+ New order</button></header>
+    <div id="message" role="status" class="notice"></div>
+    <section class="stats" aria-label="Order overview"><div><span>Total orders</span><strong id="stat-total">0</strong></div><div><span>Need review</span><strong id="stat-draft">0</strong></div><div><span>In progress</span><strong id="stat-active">0</strong></div><div><span>Delivered</span><strong id="stat-delivered">0</strong></div></section>
+    <details class="panel" id="catalog-panel"><summary>Products &amp; stock</summary><p class="small muted">Catalog items deduct stock when confirmed. Drafts do not reserve stock. Low stock means 5 units or fewer.</p><form id="catalog-form"><div class="field-grid"><label>Product name<input id="catalog-product" required maxlength="200"></label><label>Unit price (BDT)<input id="catalog-price" type="number" min="0" max="1000000" step="0.01" required></label><label>Size<input id="catalog-size" maxlength="80"></label><label>Color<input id="catalog-color" maxlength="80"></label><label>Available units<input id="catalog-stock" type="number" min="0" max="1000000" step="1" required></label></div><button type="submit" class="secondary">Add product variant</button></form><div class="section-title"><h3>Available variants</h3><button id="refresh-catalog" type="button" class="quiet">Refresh stock</button></div><div id="catalog-list"></div></details>
+    <div class="desk-grid">
+      <section class="panel order-list"><div class="section-title"><h2>Your orders</h2><button id="refresh" class="quiet">Refresh</button></div><label class="sr-only" for="search">Search orders</label><input id="search" placeholder="Search name, product or reference…" type="search"><label class="sr-only" for="filter">Filter status</label><select id="filter"><option value="">All statuses</option><option>draft</option><option>confirmed</option><option>packed</option><option>shipped</option><option>delivered</option><option>cancelled</option><option>returned</option></select><div id="order-list"></div></section>
+      <section class="panel editor">
+        <div class="section-title"><div><p class="eyebrow" id="order-reference">START SOMETHING NEW</p><h2 id="editor-title">New order draft</h2></div><span id="order-status" class="badge">draft</span></div>
+        <details id="chat-section"><summary>Start from a chat message</summary><p class="small muted">Paste a message, then review every extracted detail. AI extraction is experimental.</p><label>Chat message<textarea id="chat-message" rows="3" placeholder="Paste a Bangla, Banglish or English message…"></textarea></label><button id="extract" type="button" class="secondary">Extract a draft</button></details>
+        <div id="extraction-hints" class="notice" hidden></div>
+        <form id="draft-form">
+          <fieldset id="draft-fields"><label>Shop name<input name="shop_name" required maxlength="200" value="Online shop"></label>
+          <div class="section-title"><h3>What are they ordering?</h3><button id="add-item" type="button" class="quiet">+ Add item</button></div><div id="line-items"></div>
+          <p class="small muted">Select a catalog variant to track stock. Manual items require your own stock check. Confirm the size, color and price before sharing.</p>
+          <div class="field-grid"><label>Delivery charge (BDT)<input name="delivery" type="number" min="0" max="1000000" step="0.01" value="0" required></label><div class="total-preview"><span>Cash on delivery</span><strong id="draft-total">BDT 0.00</strong></div></div>
+          <h3>Buyer details <span class="muted small">Optional until confirmation</span></h3><div class="field-grid"><label>Name<input name="customer_name" autocomplete="off"></label><label>Mobile number<input name="phone" type="tel" autocomplete="off" placeholder="01XXXXXXXXX"></label></div><label>Delivery address<textarea name="address" rows="2" autocomplete="off"></textarea></label>
+          <button id="save-draft" type="submit">Save draft</button></fieldset>
+        </form>
+        <div id="saved-actions" hidden><div class="divider"></div><div id="link-actions"><h3>Ready to send?</h3><p class="small muted">Create a link, then paste it into Messenger. Creating a new link replaces the previous one.</p><div class="actions"><button id="create-link" class="secondary">Create checkout link</button><button id="revoke-link" class="quiet">Revoke links</button></div><div id="share-box" hidden><label>Checkout link<input id="share-url" readonly></label><button id="copy-link" class="secondary">Copy link</button><p id="link-expiry" class="small muted"></p></div></div>
+          <form id="shipment-form" hidden><h3>Courier details</h3><p class="small muted">Enter the courier and parcel reference. This does not book a shipment or change the order status.</p><div class="field-grid"><label>Courier name<input id="courier-name" required maxlength="100"></label><label>Tracking reference<input id="courier-reference" required maxlength="150"></label></div><button id="save-shipment" class="secondary" type="submit">Save courier details</button></form><h3>Order progress</h3><p class="small muted">Update the order after each step. These updates are visible to the buyer.</p><div class="actions"><label class="sr-only" for="next-status">Next status</label><select id="next-status"></select><button id="update-status" class="secondary">Update status</button></div><button id="restock-return" type="button" class="secondary" hidden>Restock inspected returned items</button><ol id="history" class="timeline"></ol>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body></html>

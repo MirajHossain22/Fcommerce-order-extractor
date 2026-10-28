@@ -10,12 +10,14 @@ from typing import Any
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from app.config import load_settings
 from app.extractor import ExtractionError, extract_order
 from app.schemas import Message, Order
+from eval.baseline import extract_baseline
 
 
 FIELDS = ("is_order", "customer_name", "phone", "address", "product", "quantity", "notes")
@@ -110,22 +112,30 @@ def render_report(result: dict[str, Any], provider: str, model: str, dataset: Pa
     for failure in result["failures"]:
         lines.extend([f"### Case {failure['case']}", "", "```json",
                       json.dumps(failure, ensure_ascii=False, indent=2), "```", ""])
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", type=Path, default=DIRECTORY / "dataset.jsonl")
-    parser.add_argument("--output", type=Path, default=DIRECTORY / "results.md")
+    parser.add_argument("--extractor", choices=("llm", "regex"), default="llm")
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
+    if args.output is None:
+        args.output = DIRECTORY / ("results-baseline.md" if args.extractor == "regex" else "results.md")
     if args.dataset.resolve() == args.output.resolve():
         print("Output must not overwrite the dataset.", file=sys.stderr)
         return 1
     try:
         rows = load_dataset(args.dataset)
-        settings = load_settings()
-        result = evaluate(rows, lambda message: extract_order(message, settings))
-        report = render_report(result, settings.provider, settings.model, args.dataset)
+        if args.extractor == "regex":
+            result = evaluate(rows, extract_baseline)
+            provider, model = "local", "regex-baseline"
+        else:
+            settings = load_settings()
+            result = evaluate(rows, lambda message: extract_order(message, settings))
+            provider, model = settings.provider, settings.model
+        report = render_report(result, provider, model, args.dataset)
         args.output.write_text(report, encoding="utf-8")
     except ValidationError:
         print("Configuration error: set PROVIDER, MODEL, and API_KEY in .env.", file=sys.stderr)

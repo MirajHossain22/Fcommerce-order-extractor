@@ -19,7 +19,7 @@ from app.schemas import Order
 
 @pytest.fixture
 def client(tmp_path: Path) -> Iterator[TestClient]:
-    with TestClient(create_app(tmp_path / "orders.sqlite3")) as test_client:
+    with TestClient(create_app(tmp_path / "orders.sqlite3", seller_keys={"test-key": "legacy"}), headers={"Authorization": "Bearer test-key"}) as test_client:
         yield test_client
 
 
@@ -128,10 +128,10 @@ def test_csv_download_includes_saved_unicode_and_warnings(client: TestClient) ->
 def test_orders_persist_across_app_restarts(tmp_path: Path) -> None:
     database = tmp_path / "orders.sqlite3"
     order = Order(is_order=True, customer_name="TEST_CUSTOMER")
-    with TestClient(create_app(database)) as first:
+    with TestClient(create_app(database, seller_keys={"test-key": "legacy"}), headers={"Authorization": "Bearer test-key"}) as first:
         with patch("app.main.extract_order", return_value=order):
             assert first.post("/extract", json={"message": "order chai"}).status_code == 200
-    with TestClient(create_app(database)) as second:
+    with TestClient(create_app(database, seller_keys={"test-key": "legacy"}), headers={"Authorization": "Bearer test-key"}) as second:
         assert second.get("/orders").json() == [order.model_dump()]
 
 
