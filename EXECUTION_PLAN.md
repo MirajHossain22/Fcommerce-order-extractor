@@ -12,9 +12,9 @@ The proposed flow is: seller creates or extracts an order draft, checks it, and 
 
 ## Current implementation batch
 
-Steps 2–6 are implemented for local use, with **216 passing offline tests**. The seller dashboard supports browser sessions, extraction review, manual drafts, search/filtering, and status actions. Sellers can create and copy checkout links. Buyers can review items, enter delivery details, confirm once, recover a receipt, and open a private tracking page. See [setup and examples](BACKEND_CHECKOUT.md).
+Steps 2–6 are implemented for local use, with **218 passing offline tests**. The seller dashboard supports browser sessions, extraction review, manual drafts, search/filtering, and status actions. Sellers can create and copy checkout links. Buyers can review items, enter delivery details, confirm once, recover a receipt, and open a private tracking page. See [setup and examples](BACKEND_CHECKOUT.md).
 
-Step 7 is complete locally: buyers see seller-entered status, history, courier name, and parcel reference. Step 8 now has verified backup/restore tooling, an explicit persistent-storage launcher, host checks, a health endpoint, and a Docker starter. The Docker engine was unavailable, so the image is not build-verified. Desktop and 390px mobile flows were checked in headless Chrome with synthetic data. The app has not been deployed; shared loopback links only work on the machine running it. Existing local evaluation changes were left untouched.
+Step 7 is complete locally: buyers see seller-entered status, history, courier name, and parcel reference. Step 8 now has verified backup/restore tooling, an explicit persistent-storage launcher, host checks, a health endpoint, a Docker starter, and a Render Blueprint for a single paid Singapore instance with a persistent disk. The Docker engine was unavailable, so the image is not build-verified. Desktop and 390px mobile flows were checked in headless Chrome with synthetic data. The app has not been deployed; the Render Blueprint still requires account-side creation and secrets.
 
 Step 10 is also implemented locally: seller catalog, variant selection, atomic stock deductions, cancellation restoration, explicit return restocking, and low-stock displays. Manual items remain untracked. See [inventory behavior and limits](INVENTORY.md). Step 9 address reuse remains a separate pending feature.
 
@@ -27,7 +27,7 @@ Step 10 is also implemented locally: seller catalog, variant selection, atomic s
 | 3. API, storage, CSV | Implemented for local use | `backend/app/main.py` and `export.py`; single/batch extraction, SQLite persistence, order listing, and CSV download exist. |
 | 4. Evaluation tools | Implemented; successful live evaluation remains | 50-message dataset, scoring, and failure reports exist. The recorded live run had 50 extraction errors and no usable predictions. Its 0% score is not measured model prediction accuracy. |
 | Local regex baseline | Implemented and scored | `eval/baseline.py` scored 46.00% exact-order accuracy (23/50) and 83.43% mean field accuracy with zero extraction errors; see `eval/results-baseline.md`. |
-| Automated verification | Passing | 216 offline tests passed on October 28, 2026; one upstream Starlette test-client deprecation warning. Mocked tests do not establish live AI quality. |
+| Automated verification | Passing | 218 offline tests passed on October 28, 2026; one upstream Starlette test-client deprecation warning. Mocked tests do not establish live AI quality. |
 | Frontend | Implemented locally | Seller dashboard, buyer checkout/receipt, and private status tracking in `frontend/`; responsive flow verified in Chrome. |
 | Order lifecycle, seller access, checkout sessions | Backend implemented | `commerce.py`, `seller_auth.py`, and API routes; see current batch above. |
 
@@ -39,7 +39,7 @@ Steps 1–8 build the first usable checkout pilot. Step 9 adds returning-buyer c
 
 ### Step 1 — Establish the baseline and finish evaluation follow-up
 
-- [x] Inspect the current implementation and run the offline suite: 216 passed after focused baseline tests were added.
+- [x] Inspect the current implementation and run the offline suite: 218 passed after Render configuration checks were added.
 - [x] Review the existing regex baseline work and produce a separate baseline report.
 - [ ] When live evaluation resumes, check provider availability and quota, then run a small synthetic sample before the full dataset.
 - [ ] Preserve separate reports and distinguish request failures from incorrect predictions.
@@ -111,8 +111,9 @@ Completion check: a seller's status update appears on the buyer's tracking page,
 - [x] Cover duplicate submission, expired links, missing details, unauthorized access, and changed prices.
 - [x] Verify local mobile use, persistence, database migration, and backup/restore with synthetic data.
 - [x] Prepare persistent-storage configuration, startup host/secret checks, a health endpoint, and a container starter.
+- [x] Select Render and add a Blueprint for a paid single-instance SQLite pilot in Singapore.
 - [ ] Build and verify the container on a running Docker engine.
-- [ ] Select the host/domain, then verify real HTTPS, proxy settings, persistent volume, backups, and secrets on that host before using real orders.
+- [ ] Create the Render service, then verify its generated HTTPS origin, proxy settings, persistent volume, backups, and secrets before using real orders.
 - [ ] Run a small seller/buyer pilot and record completion time, checkout abandonment, corrected details, duplicate orders, and status enquiries.
 
 Completion check: the deployed pilot supports the full manual checkout flow reliably. Describe AI extraction as experimental until successful live evaluation supports stronger claims.
@@ -147,4 +148,4 @@ Completion check: external failures are visible, retries do not create duplicate
 
 ## Next implementation task
 
-Continue Step 8 using DEPLOYMENT.md: choose the host/domain and persistent storage, verify the container build, deploy behind HTTPS, and run a recovery drill and small pilot. No deployment target is configured yet. Step 10 inventory is complete locally. Continue Step 9 address reuse as a separate batch while deployment awaits a hosting target; all unchecked items above remain planned work.
+Continue Step 8 using DEPLOYMENT.md: create the Render Blueprint service, enter secrets, verify the generated HTTPS origin and persistent disk, then run a recovery drill and small pilot. Step 10 inventory is complete locally. Continue Step 9 address reuse as a separate batch while the Render account setup awaits the user; all unchecked items above remain planned work.

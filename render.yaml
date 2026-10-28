@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: fcommerce-order-extractor
+    runtime: docker
+    region: singapore
+    plan: 0.5c-512mb
+    numInstances: 1
+    autoDeployTrigger: commit
+    healthCheckPath: /healthz
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: DATABASE_PATH
+        value: /data/orders.sqlite3
+      - key: SELLER_API_KEYS
+        sync: false
+      - key: PROVIDER
+        value: gemini
+      - key: MODEL
+        value: gemini-3.8-flash
+      - key: API_KEY
+        sync: false
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      - key: FORWARDED_ALLOW_IPS
+        value: "*"
+    disk:
+      name: order-data
+      mountPath: /data
+      sizeGB: 5

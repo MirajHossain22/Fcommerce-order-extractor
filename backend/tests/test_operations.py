@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from contextlib import closing
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -133,6 +134,26 @@ def test_pilot_configuration_health_and_https_cookie(monkeypatch, tmp_path):
         assert response.status_code == 200 and "Secure" in response.headers["set-cookie"]
         assert client.post("/seller/orders", json=DRAFT, headers={"X-CSRF-Token": response.json()["csrf_token"]}).status_code == 201
     assert (tmp_path / "deployed.db").exists()
+
+
+def test_render_hostname_configures_trusted_host(monkeypatch, tmp_path):
+    configure(monkeypatch, tmp_path)
+    monkeypatch.delenv("ALLOWED_HOSTS")
+    monkeypatch.setenv("RENDER_EXTERNAL_HOSTNAME", "synthetic-pilot.onrender.com")
+    with TestClient(build_app(), base_url="https://synthetic-pilot.onrender.com") as client:
+        assert client.get("/healthz").json() == {"status": "ok"}
+        assert client.get("/healthz", headers={"Host": "attacker.invalid"}).status_code == 400
+
+
+def test_render_blueprint_has_persistent_single_instance():
+    blueprint = (Path(__file__).resolve().parents[2] / "render.yaml").read_text(encoding="utf-8")
+    assert "runtime: docker" in blueprint
+    assert "region: singapore" in blueprint
+    assert "numInstances: 1" in blueprint
+    assert "healthCheckPath: /healthz" in blueprint
+    assert "value: /data/orders.sqlite3" in blueprint
+    assert "mountPath: /data" in blueprint
+    assert blueprint.count("sync: false") == 2
 
 
 @pytest.mark.parametrize("name,value", [("DATABASE_PATH", "relative.db"), ("ALLOWED_HOSTS", ""), ("ALLOWED_HOSTS", "*"), ("ALLOWED_HOSTS", "https://example.test"), ("SELLER_API_KEYS", "{}"), ("SELLER_API_KEYS", '{"short":"seller"}')])

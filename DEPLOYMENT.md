@@ -1,6 +1,6 @@
 # Pilot operations and deployment preparation
 
-This repository is ready for the next deployment setup step, not already hosted. No hosting account, public hostname, or persistent volume has been selected. The local flow and recovery checks use synthetic data. The Docker engine was unavailable during this batch, so the image has not been built or tested.
+Render is selected for the pilot and `render.yaml` defines the service, but the service has not been created in a Render account yet. The Blueprint uses Docker, the Singapore region, one `0.5c-512mb` instance, a 5 GB disk mounted at `/data`, and `/healthz`. The local flow and recovery checks use synthetic data. The Docker engine was unavailable during this batch, so the image has not been built locally.
 
 ## 1. Keep a recoverable database
 
@@ -43,6 +43,8 @@ The pilot launcher is `python -m app.serve` with `PYTHONPATH=backend`. Unlike th
 | `PORT` | Defaults to `8000`. |
 | `FORWARDED_ALLOW_IPS` | Defaults to `127.0.0.1`. Set the exact trusted reverse-proxy addresses; do not trust arbitrary internet clients. |
 
+On Render, `RENDER_EXTERNAL_HOSTNAME` is injected automatically and the launcher adds it to the trusted-host list. The Blueprint sets `FORWARDED_ALLOW_IPS=*` because the public container is reached through Render's edge proxy; do not copy that setting to a host where clients can connect directly to the application port.
+
 Use one application instance and one worker for this SQLite pilot. Do not use an ephemeral filesystem or a shared network filesystem for the live database. Keep health checks on `GET /healthz`; it returns 503 if the order table cannot be read and does not recreate a missing file. It checks storage reads, not AI quota, backup freshness, or write capacity.
 
 The launcher disables access logs so checkout/tracking tokens are not routinely written into request logs. Configure any reverse proxy to omit or redact these paths too. The app rejects unexpected Host headers. The HTTPS reverse proxy must preserve the original Host and provide a trusted forwarded scheme so secure session cookies and origin checks work.
@@ -63,7 +65,19 @@ Set the named environment variables first. If using a bind mount instead of a na
 
 ## 5. Finish the hosted pilot
 
-- [ ] Choose the host, domain, persistent disk, and backup destination.
+### Create the Render service
+
+1. Sign in to the [Render Dashboard](https://dashboard.render.com/) and create a new Blueprint from `MirajHossain22/Fcommerce-order-extractor` on branch `main`.
+2. Review the paid resources before applying. Render persistent disks require a paid web service. The Blueprint requests the smallest current paid web plan (`0.5c-512mb`) plus a 5 GB disk; Render shows the current charge before creation.
+3. Enter `SELLER_API_KEYS` when prompted as a JSON object such as `{"a-long-random-secret-of-at-least-32-characters":"pilot-shop"}`. Generate a unique key locally and do not commit or paste it into chat.
+4. Enter the Gemini `API_KEY` when prompted. AI extraction is optional for the manual checkout flow, but the Blueprint declares it so extraction can be enabled. Current Gemini quota limitations still apply.
+5. Apply the Blueprint and wait for `/healthz` to pass. Open the assigned `https://...onrender.com` URL, sign in with the seller key, and use synthetic data for the first verification.
+
+The disk makes this a paid, single-instance SQLite pilot. Render does not allow scaling a service with an attached disk. Add a custom domain later by also setting `ALLOWED_HOSTS` to that exact hostname in the Render dashboard.
+
+- [x] Choose Render, Singapore, a single paid web instance, and a persistent disk layout.
+- [ ] Create the Blueprint in the Render account and record its generated hostname.
+- [ ] Choose a protected backup destination outside Render.
 - [ ] Build/start the app and verify persistent data after a restart or container replacement.
 - [ ] Configure real HTTPS, HTTP-to-HTTPS redirection, exact hosts, and trusted proxy addresses.
 - [ ] Verify login, Secure session cookies, logout, checkout sharing across devices, confirmation retries, courier display, and tracking through the public origin.
