@@ -10,9 +10,9 @@ The proposed flow is: seller creates or extracts an order draft, checks it, and 
 
 “Two taps” is a usability target for a returning buyer whose details are already available. A first-time buyer still needs to enter and review their details. Tracking makes delivery progress visible; it cannot itself guarantee faster courier delivery.
 
-## Current implementation batch
+## Current implementation status
 
-Steps 2–6 are implemented for local use, with **218 passing offline tests**. The seller dashboard supports browser sessions, extraction review, manual drafts, search/filtering, and status actions. Sellers can create and copy checkout links. Buyers can review items, enter delivery details, confirm once, recover a receipt, and open a private tracking page. See [setup and examples](BACKEND_CHECKOUT.md).
+The basic portfolio build is complete for local use, with **218 passing offline tests**. The seller dashboard supports browser sessions, extraction review, manual drafts, search/filtering, and status actions. Sellers can create and copy checkout links. Buyers can review items, enter delivery details, confirm once, recover a receipt, and open a private tracking page. See [setup and examples](BACKEND_CHECKOUT.md).
 
 Step 7 is complete locally: buyers see seller-entered status, history, courier name, and parcel reference. Step 8 now has verified backup/restore tooling, an explicit persistent-storage launcher, host checks, a health endpoint, a locally verified Docker image, and an optional paid Render Blueprint. The image passed health and named-volume restart persistence checks with synthetic data. Desktop and 390px mobile flows were checked in headless Chrome. The app has not been deployed; hosting is paused while local Docker is evaluated.
 
@@ -148,4 +148,4 @@ Completion check: external failures are visible, retries do not create duplicate
 
 ## Next implementation task
 
-Continue local Docker testing using DEPLOYMENT.md. When ready to host, choose either the existing paid Render Blueprint or a free host with persistent storage, then verify HTTPS, recovery, and a small pilot. Step 10 inventory is complete locally. Step 9 address reuse remains a separate batch; all unchecked items above remain planned work.
+The local MVP is finished. The next meaningful milestone is external validation: restore Gemini access and record a usable live evaluation, then choose a host with persistent storage and run a small synthetic pilot before accepting real data. Saved buyer accounts, courier integration, and Messenger automation are later product expansions, not blockers for the basic portfolio build.
