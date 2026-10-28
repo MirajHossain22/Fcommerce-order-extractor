@@ -53,6 +53,15 @@ The launcher disables access logs so checkout/tracking tokens are not routinely 
 
 The Dockerfile runs as a non-root user, copies only application code/static assets, and expects persistent storage mounted at `/data`. `.dockerignore` excludes `.env`, Git metadata, databases, backups, and the local virtual environment from the build context. Configure secrets at runtime; do not bake them into an image.
 
+For the shortest local workflow, keep provider settings in the ignored `.env`, set a seller mapping in the current shell, and use Compose:
+
+```powershell
+$env:SELLER_API_KEYS = '{"generated-long-key":"local-shop"}'
+docker compose up --build
+```
+
+Compose binds only to `127.0.0.1`, checks `/healthz`, and stores SQLite in the `order-data` named volume. `docker compose down` removes the container and network but retains that volume. Do not add `--volumes` unless deleting the local orders is intentional.
+
 Run locally from PowerShell. Replace the example seller key with your own long random key; keeping it in a process environment variable avoids PowerShell stripping the JSON quotes:
 
 ```powershell
