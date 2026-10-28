@@ -12,12 +12,15 @@ from app.main import create_app
 def build_app():
     raw_path = os.environ.get("DATABASE_PATH", "")
     hosts = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "").split(",") if host.strip()]
+    render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+    if render_host and render_host not in hosts:
+        hosts.append(render_host)
     if not raw_path or not Path(raw_path).is_absolute():
         raise ValueError("DATABASE_PATH must be an absolute path on persistent storage")
     if not Path(raw_path).parent.is_dir():
         raise ValueError("DATABASE_PATH parent directory must already exist")
     if not hosts or any("*" in host or "/" in host or ":" in host for host in hosts):
-        raise ValueError("ALLOWED_HOSTS must list explicit hostnames without schemes or ports")
+        raise ValueError("Set ALLOWED_HOSTS or RENDER_EXTERNAL_HOSTNAME to explicit hostnames without schemes or ports")
     # Production startup must not silently leave the seller application unusable.
     import json
     keys = json.loads(os.environ.get("SELLER_API_KEYS") or "{}")
