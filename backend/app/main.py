@@ -185,6 +185,15 @@ def create_app(database: Path | None = None, *, seller_keys: dict[str, str] | No
     frontend = Path(__file__).resolve().parents[2] / "frontend"
     application.mount("/assets", StaticFiles(directory=frontend), name="assets")
 
+    @application.get("/{filename}.css", include_in_schema=False)
+    @application.get("/buy/{filename}.css", include_in_schema=False)
+    @application.get("/track/{filename}.css", include_in_schema=False)
+    def serve_frontend_css(filename: str):
+        target = (frontend / f"{filename}.css").resolve()
+        if target.is_file() and frontend in target.parents:
+            return FileResponse(target, media_type="text/css")
+        raise HTTPException(status_code=404)
+
     @application.get("/", include_in_schema=False)
     def seller_page():
         return FileResponse(frontend / "seller.html")

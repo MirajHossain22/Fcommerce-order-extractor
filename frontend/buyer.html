@@ -4,35 +4,37 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Your order · Order desk</title>
-  <link rel="stylesheet" href="/assets/styles.css">
+  <meta name="description" content="Review your order details and confirm delivery address for your purchase.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
   <script src="/assets/buyer.js" type="module"></script>
 </head>
 <body class="buyer-body">
   <header class="buyer-header">
-    <a class="brand" href="#">order<span>desk</span><span class="brand-dot"></span></a>
+    <a class="brand" href="#">order<span>desk</span></a>
     <span class="small muted">A clearer way to order</span>
   </header>
   <main class="buyer-main">
-    <p class="eyebrow" id="buyer-eyebrow">CHECKOUT · অর্ডার নিশ্চিত করুন</p>
     <h1 id="buyer-title">Let’s get your order right.</h1>
-    <p class="muted" id="buyer-intro">Check the details below before you confirm.</p>
+    <p class="muted" id="buyer-intro">Check the details below before you confirm. <span id="buyer-eyebrow" class="context-tag" hidden></span></p>
     <div id="buyer-message" role="status" class="notice">
       <span class="spinner large"></span>
       <p style="text-align:center;margin:0">Loading your order details…</p>
     </div>
     <div id="buyer-content" class="buyer-grid" hidden>
       <section class="panel summary-card">
-        <p class="eyebrow">YOUR ORDER · অর্ডার বিবরণ</p>
         <h2 id="shop-name"></h2>
-        <p id="buyer-reference" class="small muted"></p>
+        <p id="buyer-reference" class="small muted order-ref"></p>
         <div id="buyer-items"></div>
         <div class="price-row">
           <span>Delivery · ডেলিভারি চার্জ</span>
-          <span id="delivery-price"></span>
+          <span id="delivery-price" class="num"></span>
         </div>
         <div class="price-row grand-total">
           <strong>Total to pay · সর্বমোট</strong>
-          <strong id="buyer-total"></strong>
+          <strong id="buyer-total" class="num"></strong>
         </div>
         <div class="payment-note">
           <strong>Cash on delivery · ক্যাশ অন ডেলিভারি</strong>
@@ -65,16 +67,15 @@
         <div class="success-mark" aria-hidden="true">✓</div>
         <h2>Order confirmed!</h2>
         <p>Your seller has received your delivery details. Keep your private tracking link to follow your parcel updates.</p>
-        <a id="tracking-link" class="button full-width" href="#">Follow my order · অর্ডার ট্র্যাকিং করুন →</a>
+        <a id="tracking-link" class="button full-width" href="#">Follow order updates · অর্ডার ট্র্যাকিং করুন</a>
         <p class="small muted" style="margin-top:16px">আপনার অর্ডার নিশ্চিত হয়েছে। লিংকটি সংরক্ষণ করে রাখুন।</p>
       </section>
       <section class="panel" id="tracking-panel" hidden>
-        <p class="eyebrow">ORDER PROGRESS · অর্ডারের বর্তমান অবস্থা</p>
         <h2 id="tracking-status"></h2>
         <p class="small muted">Updates are entered by your seller as your parcel moves. This is not a live courier feed.</p>
         <div id="shipment-details" class="shipment-card" hidden>
           <div class="shipment-header">
-            <span class="shipment-icon">🚚</span>
+            <svg class="shipment-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             <div>
               <strong>Courier Delivery</strong>
               <p id="courier-info" class="small muted"></p>

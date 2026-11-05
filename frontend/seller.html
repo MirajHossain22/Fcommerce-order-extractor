@@ -4,13 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Order desk · F-commerce</title>
-  <link rel="stylesheet" href="/assets/styles.css">
+  <meta name="description" content="Structured order desk and chat extractor for social commerce sellers in Bangladesh.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
   <script src="/assets/seller.js" type="module"></script>
 </head>
 <body>
 <section id="login-panel" class="login panel">
-  <div class="brand">order<span>desk</span><span class="brand-dot"></span></div>
-  <p class="eyebrow">LESS CHAT · CLEARER ORDERS</p>
+  <div class="brand">order<span>desk</span></div>
   <h1>Your shop, in order.</h1>
   <p class="muted">Review an extracted chat or manual draft, share a private checkout link, and track each order from confirmation to delivery.</p>
   <form id="login-form">
@@ -18,7 +21,7 @@
       Seller access key
       <input id="seller-key" type="password" required autocomplete="current-password" placeholder="Enter your secret seller key">
     </label>
-    <button type="submit" disabled>Open my order desk <span aria-hidden="true">→</span></button>
+    <button type="submit" disabled>Open order desk</button>
   </form>
   <noscript>Please enable JavaScript to use the order desk.</noscript>
   <p id="login-message" role="status" class="notice"></p>
@@ -27,20 +30,18 @@
 
 <div id="workspace" hidden>
   <aside class="sidebar">
-    <div class="brand">order<span>desk</span><span class="brand-dot"></span></div>
-    <p class="eyebrow">SELLER WORKSPACE</p>
-    <div class="nav-active">▤ &nbsp; Orders &amp; Catalog</div>
+    <div class="brand">order<span>desk</span></div>
+    <div class="nav-active">Orders &amp; Catalog</div>
     <div class="sidebar-bottom">
       <p id="seller-name" class="small"></p>
       <button id="logout" class="secondary full-width">Sign out</button>
-      <p class="small muted" style="margin-top:14px">Simple orders.<br>Room to grow.</p>
+      <p class="small muted">Simple orders.<br>Room to grow.</p>
     </div>
   </aside>
 
   <main class="desk">
     <header class="page-head">
       <div>
-        <p class="eyebrow">YOUR DAILY ORDER DESK</p>
         <h1>A little less back-and-forth.</h1>
         <p class="muted">Turn messy customer conversations into clean, reviewable orders everyone can follow.</p>
       </div>
@@ -52,24 +53,24 @@
     <section class="stats" aria-label="Order overview">
       <div>
         <span>Total orders</span>
-        <strong id="stat-total">0</strong>
+        <strong id="stat-total" class="num">0</strong>
       </div>
       <div>
         <span>Need review</span>
-        <strong id="stat-draft" style="color:var(--accent)">0</strong>
+        <strong id="stat-draft" class="num stat-draft">0</strong>
       </div>
       <div>
         <span>In progress</span>
-        <strong id="stat-active" style="color:#2563eb">0</strong>
+        <strong id="stat-active" class="num stat-active">0</strong>
       </div>
       <div>
         <span>Delivered</span>
-        <strong id="stat-delivered" style="color:var(--success)">0</strong>
+        <strong id="stat-delivered" class="num stat-delivered">0</strong>
       </div>
     </section>
 
     <details class="panel" id="catalog-panel">
-      <summary><strong>📦 Products &amp; inventory stock</strong> <span class="small muted">(Click to view &amp; manage catalog)</span></summary>
+      <summary><strong>Products &amp; inventory stock</strong> <span class="small muted">(Click to view &amp; manage catalog)</span></summary>
       <p class="small muted">Catalog items deduct stock when a buyer confirms. Drafts do not reserve stock. Low stock badge highlights &le; 5 units.</p>
       <form id="catalog-form">
         <div class="field-grid">
@@ -82,7 +83,7 @@
         <button type="submit" class="secondary">+ Add product variant</button>
       </form>
       <div class="section-title">
-        <h3>Available variants</h3>
+        <h2>Available variants</h2>
         <button id="refresh-catalog" type="button" class="quiet">Refresh stock</button>
       </div>
       <div id="catalog-list"></div>
@@ -113,14 +114,14 @@
       <section class="panel editor">
         <div class="section-title">
           <div>
-            <p class="eyebrow" id="order-reference">START SOMETHING NEW</p>
             <h2 id="editor-title">New order draft</h2>
+            <span id="order-reference" class="order-ref">New draft</span>
           </div>
           <span id="order-status" class="badge draft">draft</span>
         </div>
 
         <details id="chat-section">
-          <summary><strong>🤖 Start from a chat message</strong> <span class="small muted">(Paste raw chat)</span></summary>
+          <summary><strong>Extract draft from chat message</strong> <span class="small muted">(Paste raw chat)</span></summary>
           <p class="small muted">Paste a messy Bangla, Banglish or English Messenger message, then review every extracted detail.</p>
           <label>
             Chat message
@@ -144,10 +145,11 @@
               <label>Delivery charge (BDT)<input name="delivery" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
               <div class="total-preview">
                 <span>Total amount</span>
-                <strong id="draft-total">BDT 0.00</strong>
+                <strong id="draft-total" class="num">BDT 0.00</strong>
               </div>
             </div>
-            <h3>Buyer details <span class="muted small">(Optional until buyer confirms)</span></h3>
+            <h3>Buyer details</h3>
+            <p class="small muted">Optional until buyer confirms</p>
             <div class="field-grid">
               <label>Customer name<input name="customer_name" autocomplete="off" placeholder="e.g. Tanvir Ahmed"></label>
               <label>Mobile number<input name="phone" type="tel" autocomplete="off" placeholder="01XXXXXXXXX"></label>
@@ -177,7 +179,7 @@
 
           <form id="shipment-form" hidden>
             <h3>Courier delivery details</h3>
-            <p class="small muted">Record courier parcel tracking reference. Saved courier info displays on the buyer's private tracking link.</p>
+            <p class="small muted">Record courier parcel tracking reference. Saved courier info displays on the buyer’s private tracking link.</p>
             <div class="field-grid">
               <label>Courier company<input id="courier-name" required maxlength="100" placeholder="e.g. Pathao Courier / Steadfast"></label>
               <label>Tracking reference<input id="courier-reference" required maxlength="150" placeholder="e.g. PTH-DH-883921"></label>
@@ -192,7 +194,7 @@
             <select id="next-status"></select>
             <button id="update-status" class="secondary">Update status</button>
           </div>
-          <button id="restock-return" type="button" class="secondary" hidden style="margin-top:12px">Restock returned items to catalog</button>
+          <button id="restock-return" type="button" class="secondary" hidden>Restock returned items to catalog</button>
           <ol id="history" class="timeline"></ol>
         </div>
       </section>

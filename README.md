@@ -57,6 +57,11 @@ Validated Gemini extraction · deterministic regex baseline · FastAPI + SQLite 
 | 🔒 | **Seller auth** | Bearer key or browser session on all seller routes |
 
 ### 🆕 Phase 02 Polish Updates:
+- **Hallmark Anti-AI-Slop Redesign:** Overhauled the interface using the Hallmark design system (`Nutlope/hallmark`) to eliminate generic AI UI tropes and achieve an authentic, bespoke tool aesthetic.
+- **Strict Token Architecture:** 100% of palette colors, typography scales, and motion parameters declared via `:root` tokens in `frontend/tokens.css` with zero raw color literals in rules.
+- **Single Containment Layer:** Removed nested card-in-card containers; replaced with clean hairline-divided surfaces and clear visual hierarchy.
+- **Typography & Precision Craft:** Powered by *Host Grotesk* and *Atkinson Hyperlegible Mono* with tabular figures (`font-variant-numeric: tabular-nums`). Removed fake circular status dots and tracked uppercase eyebrows.
+- **Automated Design Verification:** Scored a clean **0 FAIL, 0 REFLEX, 0 WARN** on Hallmark's mechanical `sloplint` audit across `styles.css`, `seller.html`, and `buyer.html`.
 - **Interactive Loading States:** Integrated CSS spinners on button actions (`Extracting…`, `Saving draft…`, `Creating link…`, `Confirming order…`).
 - **Mobile-First Checkout:** Reordered mobile checkout (&le;650px) to prominently display the order summary card first, with full &ge;44px touch targets.
 - **Copy Link Feedback:** Instant `✓ Copied!` visual confirmation on clipboard actions.

@@ -159,7 +159,7 @@ function selectOrder(value) {
   $('line-items').replaceChildren();
   $('share-box').hidden = true;
   $('share-url').value = '';
-  $('order-reference').textContent = value?.reference || 'START SOMETHING NEW';
+  $('order-reference').textContent = value?.reference || 'New draft';
   $('editor-title').textContent = value ? (value.status === 'draft' ? 'Review order draft' : 'Order details') : 'New order draft';
   const status = value?.status || 'draft';
   $('order-status').textContent = status;
@@ -227,8 +227,8 @@ function renderOrders() {
   if (!filtered.length) {
     const empty = node('div', '', 'empty-card');
     empty.innerHTML = orders.length
-      ? '<span class="empty-icon">🔍</span><strong>No matching orders</strong><p class="small muted">Try adjusting your search terms or filter.</p>'
-      : '<span class="empty-icon">📦</span><strong>No orders yet</strong><p class="small muted">Create a new draft or extract an order from chat to get started.</p>';
+      ? '<span class="empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><strong>No matching orders</strong><p class="small muted">Try adjusting your search terms or filter.</p>'
+      : '<span class="empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span><strong>No orders yet</strong><p class="small muted">Create a new draft or extract an order from chat to get started.</p>';
     $('order-list').append(empty);
   }
 }
@@ -248,7 +248,7 @@ function renderCatalog() {
     const row = node('form', '', 'line-item');
     row.append(
       node('strong', `${variant.product} · ${variant.size || '—'} · ${variant.color || '—'}`),
-      node('p', `${variant.stock} available${variant.stock <= 5 ? ' · ⚠️ Low stock' : ''}${variant.active ? '' : ' · Inactive'}`, 'small muted')
+      node('p', `${variant.stock} available${variant.stock <= 5 ? ' · Low stock' : ''}${variant.active ? '' : ' · Inactive'}`, 'small muted')
     );
     const fields = node('div', '', 'field-grid');
     const stockLabel = node('label', 'Available units');
@@ -310,7 +310,7 @@ function renderCatalog() {
   }
   if (!catalog.length) {
     const empty = node('div', '', 'empty-card');
-    empty.innerHTML = '<span class="empty-icon">🏷️</span><strong>No product variants yet</strong><p class="small muted">Add your first product above to track stock automatically.</p>';
+    empty.innerHTML = '<span class="empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span><strong>No product variants yet</strong><p class="small muted">Add your first product above to track stock automatically.</p>';
     $('catalog-list').append(empty);
   }
 }
