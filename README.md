@@ -49,6 +49,12 @@ Validated Gemini extraction · deterministic regex baseline · FastAPI + SQLite 
 | 📊 | **Built-in evaluation** | Exact field/order accuracy on a 50-message synthetic dataset, Gemini vs. regex baseline |
 | 🔒 | **Seller auth** | Bearer key or browser session on all seller routes |
 
+### 🆕 Phase 02 Polish Updates:
+- **Interactive Loading States:** Integrated CSS spinners on button actions (`Extracting…`, `Saving draft…`, `Creating link…`, `Confirming order…`).
+- **Mobile-First Checkout:** Reordered mobile checkout (&le;650px) to prominently display the order summary card first, with full &ge;44px touch targets.
+- **Copy Link Feedback:** Instant `✓ Copied!` visual confirmation on clipboard actions.
+- **One-Command Demo Seeder:** Realistic Bangladeshi store seed script (`scripts/seed_demo.py`) covering all order statuses (`draft`, `confirmed`, `packed`, `shipped`, `delivered`).
+
 > All committed examples and test fixtures are **synthetic**. `.env`, SQLite databases, and backups are ignored by Git.
 
 ---
@@ -230,6 +236,8 @@ See [results-baseline.md](eval/results-baseline.md) for baseline failures and [r
 - [x] Regex baseline + 50-message synthetic evaluation set
 - [x] Seller dashboard, private checkout links, receipts, and tracking
 - [x] Inventory, product variants, and CSV export
+- [x] Responsive UI/UX polish with animated loading spinners, accessible status badges, and mobile checkout
+- [x] One-command demo seed script (`scripts/seed_demo.py`) with realistic Bangladeshi store data
 - [x] Docker Compose setup with persistent volume
 - [x] CI on Python 3.11 and 3.12
 

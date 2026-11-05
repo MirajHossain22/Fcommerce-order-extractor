@@ -8,7 +8,7 @@ let submitting = false;
 function showReceipt(receipt) {
   showSummary(receipt);
   $('buyer-title').textContent = 'All set. Your order is confirmed.';
-  $('buyer-intro').textContent = 'Follow your order using the link below.';
+  $('buyer-intro').textContent = 'Follow your parcel updates using the tracking link below.';
   $('delivery-panel').hidden = true;
   $('receipt-panel').hidden = false;
   $('tracking-link').href = receipt.tracking_path;
@@ -18,7 +18,7 @@ function showReceipt(receipt) {
 function showSummary(value) {
   $('buyer-content').hidden = false;
   $('shop-name').textContent = value.shop_name;
-  $('buyer-reference').textContent = value.reference;
+  $('buyer-reference').textContent = 'Reference: ' + value.reference;
   $('delivery-price').textContent = money(value.delivery_charge_paisa);
   $('buyer-total').textContent = money(value.total_paisa);
   showItems($('buyer-items'), value.items);
@@ -30,14 +30,15 @@ async function load() {
     showSummary(summary);
     if (tracking) {
       $('buyer-title').textContent = 'Your order, step by step.';
-      $('buyer-eyebrow').textContent = 'ORDER TRACKING · অর্ডারের আপডেট';
-      $('buyer-intro').textContent = 'Keep this private link to check your order’s progress.';
+      $('buyer-eyebrow').textContent = 'ORDER TRACKING · অর্ডারের বর্তমান অবস্থা';
+      $('buyer-intro').textContent = 'Keep this private link to check your order’s delivery progress.';
       $('delivery-panel').hidden = true;
       $('tracking-panel').hidden = false;
-      $('tracking-status').textContent = summary.status.charAt(0).toUpperCase() + summary.status.slice(1);
+      const statusText = summary.status.charAt(0).toUpperCase() + summary.status.slice(1);
+      $('tracking-status').innerHTML = `<span class="badge ${summary.status}">${statusText}</span>`;
       showHistory($('tracking-history'), summary.history);
       $('shipment-details').hidden = !summary.shipment;
-      $('courier-info').textContent = summary.shipment ? `${summary.shipment.courier_name} · ${summary.shipment.tracking_reference}` : '';
+      $('courier-info').textContent = summary.shipment ? `${summary.shipment.courier_name} · Tracking Ref: ${summary.shipment.tracking_reference}` : '';
     }
     notice('buyer-message');
   } catch (error) {
@@ -54,15 +55,19 @@ $('buyer-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   if (submitting || !summary) return;
   const form = new FormData(event.currentTarget);
-  const body = {version: summary.version, customer_name: form.get('customer_name').trim(), phone: form.get('phone').trim(), address: form.get('address').trim()};
+  const body = {
+    version: summary.version,
+    customer_name: form.get('customer_name').trim(),
+    phone: form.get('phone').trim(),
+    address: form.get('address').trim()
+  };
   submitting = true;
   $('buyer-fields').disabled = true;
-  $('confirm-order').textContent = 'Confirming…';
+  $('confirm-order').innerHTML = '<span class="spinner"></span> Confirming order…';
   notice('buyer-message');
   try {
     const receipt = await request(`/checkout/${token}/confirm`, {method: 'POST', body: JSON.stringify(body)});
     showReceipt(receipt);
-    // Keep no buyer details in storage. The receipt itself contains no contact data.
     event.target.reset();
   } catch (error) {
     notice('buyer-message', error.message + (error.status ? '' : ' Your details are still here. Retry to recover the same order.'), true);
@@ -78,5 +83,6 @@ $('buyer-form').addEventListener('submit', async (event) => {
     }
   }
 });
+
 $('refresh-tracking').addEventListener('click', load);
 load();
