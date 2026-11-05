@@ -97,6 +97,10 @@ button, input, select, textarea {
   border: 0;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
