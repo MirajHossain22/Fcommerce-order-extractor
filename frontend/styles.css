@@ -565,6 +565,103 @@ fieldset {
   box-shadow: var(--shadow-accent);
 }
 
+/* 3D Isometric Cube Button */
+.btn-cube {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs) var(--space-md);
+  background-color: transparent !important;
+  outline: none;
+  border: 0 !important;
+  color: var(--color-accent) !important;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: none !important;
+}
+
+.btn-cube .cube-top {
+  position: absolute;
+  height: 8px;
+  background-color: var(--color-accent);
+  bottom: 100%;
+  left: var(--space-2xs);
+  right: -4px;
+  transform: skew(-45deg, 0);
+  margin: 0;
+  transition: background-color var(--dur-short) var(--ease-out);
+}
+
+.btn-cube .cube-top .cube-inner {
+  bottom: 0;
+}
+
+.btn-cube .cube-right {
+  position: absolute;
+  background-color: var(--color-accent);
+  top: -4px;
+  bottom: var(--space-2xs);
+  width: 8px;
+  left: 100%;
+  transform: skew(0, -45deg);
+  transition: background-color var(--dur-short) var(--ease-out);
+}
+
+.btn-cube .cube-right .cube-inner {
+  left: 0;
+}
+
+.btn-cube .cube-face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-accent);
+  transition: background-color var(--dur-short) var(--ease-out);
+}
+
+.btn-cube .cube-inner {
+  background-color: var(--color-paper-2);
+  position: absolute;
+  left: var(--space-3xs);
+  right: var(--space-3xs);
+  top: var(--space-3xs);
+  bottom: var(--space-3xs);
+  transition: background-color var(--dur-short) var(--ease-out);
+}
+
+.btn-cube .cube-text {
+  position: relative;
+  z-index: 2;
+  color: var(--color-accent);
+  transition: color var(--dur-short) var(--ease-out);
+}
+
+.btn-cube:hover .cube-inner {
+  background-color: var(--color-accent);
+}
+
+.btn-cube:hover .cube-text {
+  color: var(--color-accent-ink);
+}
+
+.btn-cube:hover .cube-right,
+.btn-cube:hover .cube-face,
+.btn-cube:hover .cube-top {
+  background-color: var(--color-paper-3);
+}
+
+.btn-cube:active {
+  transform: scale(0.96);
+}
+
 /* Stats Row */
 .stats {
   display: grid;
