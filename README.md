@@ -22,12 +22,19 @@ Validated Gemini extraction · deterministic regex baseline · FastAPI + SQLite 
 [**Evaluation**](#-evaluation) ·
 [**Roadmap**](#-roadmap)
 
+<br />
+<br />
+
+🌐 **[Live Demo](https://fcommerce-order-extractor.onrender.com/)** &nbsp;·&nbsp; 📖 **[API Docs](https://fcommerce-order-extractor.onrender.com/docs)** &nbsp;·&nbsp; 🟢 **[Health Check](https://fcommerce-order-extractor.onrender.com/healthz)**
+<br />
+<sub>Seller access key: <code>demo-seller-key</code></sub>
+
 </div>
 
 <br />
 
 > [!NOTE]
-> **Portfolio status:** the complete local MVP is implemented and covered by 241 offline tests. Live Gemini accuracy is **not yet measured**: the recorded evaluation run hit provider failures/quota. The manual checkout flow works without Gemini.
+> **Live Demo Available:** Deployed live on Render at **[fcommerce-order-extractor.onrender.com](https://fcommerce-order-extractor.onrender.com/)** with an auto-seeded Bangladeshi storefront ("Dacca Loom") and 241 offline tests. Use seller key `demo-seller-key` to test the seller dashboard, or open private checkout links to test mobile buyer confirmation. Live Gemini accuracy is unmeasured due to provider quota; the manual draft and mobile checkout flows work independently without Gemini.
 
 <!--
   📸 Add a screenshot or demo GIF here once you have one:
@@ -238,12 +245,12 @@ See [results-baseline.md](eval/results-baseline.md) for baseline failures and [r
 - [x] Inventory, product variants, and CSV export
 - [x] Responsive UI/UX polish with animated loading spinners, accessible status badges, and mobile checkout
 - [x] One-command demo seed script (`scripts/seed_demo.py`) with realistic Bangladeshi store data
+- [x] Live hosting and deployed demo on Render ([fcommerce-order-extractor.onrender.com](https://fcommerce-order-extractor.onrender.com/))
 - [x] Docker Compose setup with persistent volume
 - [x] CI on Python 3.11 and 3.12
 
 **Next**
 - [ ] Measure live Gemini accuracy once provider access/quota is available
-- [ ] Hosting and a real-user pilot (see [DEPLOYMENT.md](DEPLOYMENT.md))
 - [ ] Saved buyer addresses/accounts
 - [ ] Courier API and Messenger automation
 
