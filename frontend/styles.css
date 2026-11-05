@@ -240,8 +240,9 @@ fieldset {
   gap: var(--space-md);
 }
 
-/* Status Badges */
+/* Status Badges with Expanding Circle Hover Effect */
 .badge {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2xs);
@@ -251,14 +252,65 @@ fieldset {
   border-radius: var(--radius-pill);
   border: 1px solid currentColor;
   white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              border-color 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              transform 0.15s ease-out;
 }
 
 .badge::before {
   content: "";
-  width: 5px;
-  height: 5px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: currentColor;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  z-index: -1;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+              opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.badge::after {
+  content: "→";
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0;
+  max-width: 0;
+  transform: translateX(-4px);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              max-width 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.badge:hover,
+.order-card:hover .badge {
+  color: var(--color-paper-3) !important;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.badge:hover::before,
+.order-card:hover .badge::before {
+  transform: translate(-50%, -50%) scale(25);
+  opacity: 1;
+}
+
+.badge:hover::after,
+.order-card:hover .badge::after {
+  opacity: 1;
+  max-width: 16px;
+  transform: translateX(0);
+}
+
+.badge:active {
+  transform: scale(0.95);
 }
 
 .badge.draft {
