@@ -123,3 +123,4 @@ Every interactive primitive enforces all 8 standard states:
 - Stats row wraps to 2&times;2 grid.
 - **Buyer Checkout Inversion:** On mobile viewports (&le;650px), the Order Summary Card strictly leads at the top (`order: 1`), followed by the delivery address input form (`order: 2`), ensuring the buyer immediately validates what they are paying for before entering address details.
 - Minimum touch target: &ge;44&times;44px on all buttons and tap surfaces.
+

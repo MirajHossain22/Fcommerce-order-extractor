@@ -159,7 +159,7 @@ function selectOrder(value) {
   $('line-items').replaceChildren();
   $('share-box').hidden = true;
   $('share-url').value = '';
-  $('order-reference').textContent = value?.reference || 'New draft';
+  $('order-reference').textContent = value?.reference ? `#${value.reference}` : 'Draft in progress';
   $('editor-title').textContent = value ? (value.status === 'draft' ? 'Review order draft' : 'Order details') : 'New order draft';
   const status = value?.status || 'draft';
   $('order-status').textContent = status;
@@ -211,16 +211,21 @@ function renderOrders() {
   for (const order of filtered) {
     const card = node('button', '', 'order-card' + (selected?.reference === order.reference ? ' selected' : ''));
     card.type = 'button';
-    card.append(
+    const name = order.customer_name || 'Buyer pending';
+    const initials = name.split(/\s+/).map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'FC';
+    const avatar = node('span', initials, 'order-avatar');
+    const content = node('div', '', 'order-card-content');
+    content.append(
       node('strong', order.customer_name || 'Buyer details pending'),
       node('span', order.items.map(i => i.product).join(', ') || order.extracted_order?.product || 'Items need review', 'small muted')
     );
     const bottom = node('span', '', 'card-bottom');
     bottom.append(
       node('span', order.status, 'badge ' + order.status),
-      node('span', money(order.total_paisa))
+      node('span', money(order.total_paisa), 'num order-price')
     );
-    card.append(bottom);
+    content.append(bottom);
+    card.append(avatar, content);
     card.addEventListener('click', () => { if (!busy && canLeave()) selectOrder(order); });
     $('order-list').append(card);
   }

@@ -45,56 +45,66 @@
   --z-toast: 500;
   --z-tooltip: 600;
 
-  --color-paper: oklch(17% 0.008 250);
-  --color-paper-2: oklch(21% 0.009 250);
-  --color-paper-3: oklch(13.5% 0.007 250);
-  --color-paper-hover: oklch(24% 0.01 250);
+  /* Modern High-Contrast Obsidian / Slate Canvas */
+  --color-paper: oklch(14% 0.012 260);
+  --color-paper-2: oklch(19% 0.016 260);
+  --color-paper-3: oklch(11% 0.008 260);
+  --color-paper-hover: oklch(23% 0.02 260);
+  --color-paper-active: oklch(25% 0.022 260);
 
-  --color-ink: oklch(95% 0.005 250);
-  --color-ink-2: oklch(83% 0.008 250);
-  --color-muted: oklch(71% 0.01 250);
+  /* High-Contrast Inks */
+  --color-ink: oklch(98% 0.002 260);
+  --color-ink-2: oklch(88% 0.008 260);
+  --color-muted: oklch(68% 0.015 260);
 
-  --color-rule: oklch(31% 0.01 250);
-  --color-rule-2: oklch(42% 0.012 250);
+  /* Crisp Hairline Borders & Dividers */
+  --color-rule: oklch(27% 0.015 260);
+  --color-rule-2: oklch(38% 0.02 260);
 
-  --color-accent: oklch(82% 0.15 80);
-  --color-accent-ink: oklch(18% 0.04 75);
-  --color-accent-soft: oklch(29% 0.05 80);
-  --color-focus: oklch(82% 0.15 80);
+  /* Radiant Warm Amber Primary Signal */
+  --color-accent: oklch(82% 0.16 80);
+  --color-accent-ink: oklch(15% 0.05 75);
+  --color-accent-soft: oklch(26% 0.06 80);
+  --color-focus: oklch(82% 0.16 80);
 
-  --color-cool: oklch(77% 0.12 245);
-  --color-cool-soft: oklch(29% 0.05 245);
+  /* Semantic Lifecycle Signals */
+  --color-cool: oklch(78% 0.14 245);
+  --color-cool-soft: oklch(26% 0.06 245);
 
-  --color-packed: oklch(78% 0.13 290);
-  --color-packed-soft: oklch(27% 0.05 290);
+  --color-packed: oklch(78% 0.14 295);
+  --color-packed-soft: oklch(25% 0.06 295);
 
-  --color-shipped: oklch(78% 0.12 195);
-  --color-shipped-soft: oklch(27% 0.05 195);
+  --color-shipped: oklch(78% 0.13 195);
+  --color-shipped-soft: oklch(25% 0.06 195);
 
-  --color-ok: oklch(76% 0.15 150);
-  --color-ok-soft: oklch(24.5% 0.03 150);
+  --color-ok: oklch(78% 0.16 150);
+  --color-ok-soft: oklch(24% 0.05 150);
 
-  --color-bad: oklch(70% 0.17 25);
-  --color-bad-soft: oklch(24.5% 0.035 25);
+  --color-bad: oklch(72% 0.18 28);
+  --color-bad-soft: oklch(24% 0.05 28);
 
   --color-returned: oklch(74% 0.16 10);
-  --color-returned-soft: oklch(25% 0.04 10);
+  --color-returned-soft: oklch(24% 0.05 10);
+
+  --color-avatar-from: oklch(30% 0.04 260);
+  --color-avatar-to: oklch(22% 0.02 260);
 
   --color-error: var(--color-bad);
   --color-success: var(--color-ok);
 
-  --font-display: "Host Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Host Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", system-ui, sans-serif;
   --font-body: var(--font-display);
   --font-outlier: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  --radius-card: 10px;
-  --radius-input: 6px;
-  --radius-pill: 4px;
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --radius-pill: 9999px;
   --rule-hair: 1px;
-  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.15);
-  --shadow-md: 0 4px 12px -2px oklch(0% 0 0 / 0.25);
-  --shadow-lg: 0 12px 32px -4px oklch(0% 0 0 / 0.35);
+  --shadow-sm: 0 1px 3px oklch(0% 0 0 / 0.25), inset 0 1px 0 oklch(100% 0 0 / 0.05);
+  --shadow-md: 0 4px 16px -2px oklch(0% 0 0 / 0.35), inset 0 1px 0 oklch(100% 0 0 / 0.08);
+  --shadow-lg: 0 16px 36px -6px oklch(0% 0 0 / 0.5), inset 0 1px 0 oklch(100% 0 0 / 0.1);
+  --shadow-accent: 0 1px 2px oklch(0% 0 0 / 0.4), 0 0 16px -4px var(--color-accent);
   --shadow-card: var(--shadow-sm);
-  --tracking-display: -0.02em;
-  --display-weight: 500;
+  --tracking-display: -0.025em;
+  --display-weight: 600;
 }
