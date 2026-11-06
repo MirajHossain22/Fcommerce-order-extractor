@@ -16,4 +16,5 @@ backups/
 *.db-shm
 .gemini/
 .hallmark/
+graphify-out/
 
