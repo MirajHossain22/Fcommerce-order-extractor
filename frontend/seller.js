@@ -352,6 +352,30 @@ $('login-form').addEventListener('submit', async event => {
   }
 });
 
+const fillDemoBtn = $('fill-demo-key-btn');
+if (fillDemoBtn) {
+  fillDemoBtn.addEventListener('click', () => {
+    $('seller-key').value = 'demo-seller-key';
+    const submitBtn = $('login-form').querySelector('button');
+    if (submitBtn) submitBtn.disabled = false;
+    $('login-form').requestSubmit();
+  });
+}
+
+const copyDemoBtn = $('copy-demo-key-btn');
+if (copyDemoBtn) {
+  copyDemoBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText('demo-seller-key');
+      const prev = copyDemoBtn.textContent;
+      copyDemoBtn.textContent = 'Copied!';
+      setTimeout(() => { copyDemoBtn.textContent = prev; }, 1800);
+    } catch {
+      $('seller-key').value = 'demo-seller-key';
+    }
+  });
+}
+
 $('logout').addEventListener('click', () => {
   if (canLeave()) run(async () => {
     await api('/session', {method: 'DELETE'});

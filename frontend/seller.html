@@ -25,16 +25,27 @@
   </div>
   <h1>Your shop, in order.</h1>
   <p class="muted">Review an extracted chat or manual draft, share a private checkout link, and track each order from confirmation to delivery.</p>
+  <aside class="demo-key-callout" aria-label="Reviewer access">
+    <div class="demo-callout-header">
+      <span class="demo-badge">Reviewer &amp; Demo Access</span>
+      <button type="button" id="fill-demo-key-btn" class="demo-quick-btn">⚡ Fill Demo Key</button>
+    </div>
+    <p class="demo-callout-body">
+      <span>Demo seller key:</span>
+      <code id="demo-key-text">demo-seller-key</code>
+      <button type="button" id="copy-demo-key-btn" class="demo-copy-btn" title="Copy demo key">Copy</button>
+    </p>
+  </aside>
   <form id="login-form">
     <label>
       Seller access key
-      <input id="seller-key" type="password" required autocomplete="current-password" placeholder="Enter your secret seller key">
+      <input id="seller-key" type="password" required autocomplete="current-password" placeholder="Enter seller key (or click Fill Demo Key above)">
     </label>
     <button type="submit" disabled>Open order desk</button>
   </form>
   <noscript>Please enable JavaScript to use the order desk.</noscript>
   <p id="login-message" role="status" class="notice"></p>
-  <p class="small muted">Use the access key configured for your shop. Keys are never saved in browser storage.</p>
+  <p class="small muted">Use the access key configured for your shop (e.g. <code>demo-seller-key</code>). Keys are never saved in browser storage.</p>
 </section>
 
 <div id="workspace" hidden>

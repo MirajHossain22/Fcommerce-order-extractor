@@ -26,15 +26,23 @@ Validated Gemini extraction · deterministic regex baseline · FastAPI + SQLite 
 <br />
 
 🌐 **[Live Demo](https://fcommerce-order-extractor.onrender.com/)** &nbsp;·&nbsp; 📖 **[API Docs](https://fcommerce-order-extractor.onrender.com/docs)** &nbsp;·&nbsp; 🟢 **[Health Check](https://fcommerce-order-extractor.onrender.com/healthz)**
+
 <br />
-<sub>Seller access key: <code>demo-seller-key</code></sub>
+
+🔑 **Demo Seller Key:** `demo-seller-key`
 
 </div>
 
 <br />
 
-> [!NOTE]
-> **Live Demo Available:** Deployed live on Render at **[fcommerce-order-extractor.onrender.com](https://fcommerce-order-extractor.onrender.com/)** with an auto-seeded Bangladeshi storefront ("Dacca Loom") and 241 offline tests. Use seller key `demo-seller-key` to test the seller dashboard, or open private checkout links to test mobile buyer confirmation. Live Gemini accuracy is unmeasured due to provider quota; the manual draft and mobile checkout flows work independently without Gemini.
+> [!IMPORTANT]
+> ### 🔑 Reviewer & Evaluator Access (Credosis Team)
+> - **Live Storefront URL:** **[https://fcommerce-order-extractor.onrender.com/](https://fcommerce-order-extractor.onrender.com/)**
+> - **Seller Access Key:** `demo-seller-key`
+> - **Zero-Friction Login:** When opening the live link, click the **"⚡ Fill Demo Key"** button right on the login screen to enter the seller workspace in one click.
+> - **Submission Notes Copy-Paste:** `Demo seller key: demo-seller-key`
+>
+> *Deployed live on Render with an auto-seeded Bangladeshi storefront ("Dacca Loom") and 241 offline tests. The dashboard is preloaded with 6 orders across all lifecycle stages (`draft`, `confirmed`, `packed`, `shipped`, `delivered`), real-time stock inventory, and buyer checkout flows.*
 
 <!--
   📸 Add a screenshot or demo GIF here once you have one:
