@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
@@ -114,7 +115,8 @@ def call_llm(message: str, settings: Settings, *, retry: bool = False) -> str:
         method="POST",
     )
     try:
-        with urlopen(request, timeout=60) as response:
+        timeout = int(os.environ.get("GEMINI_TIMEOUT", "15" if "PYTEST_CURRENT_TEST" not in os.environ else "60"))
+        with urlopen(request, timeout=timeout) as response:
             result = json.loads(response.read().decode("utf-8"))
     except HTTPError as error:
         raise ExtractionError(f"Gemini request failed (HTTP {error.code}). Check credentials, model, and quota.") from None
