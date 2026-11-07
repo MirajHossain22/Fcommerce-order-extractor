@@ -50,12 +50,19 @@ def read_orders(database: Path, seller_id: str = "legacy") -> list[Order]:
 
 
 def extract_messages(messages: Sequence[str]) -> list[Order]:
-    """Translate extraction failures to API errors without exposing secrets."""
+    """Translate extraction failures to API errors, or fallback to baseline if configured."""
+    fallback = os.environ.get("EXTRACTION_FALLBACK") == "1"
     try:
         return [extract_order(message) for message in messages]
     except ValidationError:
+        if fallback:
+            from app.baseline import extract_baseline
+            return [extract_baseline(m) for m in messages]
         raise HTTPException(503, "LLM configuration is missing or invalid.") from None
     except ExtractionError:
+        if fallback:
+            from app.baseline import extract_baseline
+            return [extract_baseline(m) for m in messages]
         raise HTTPException(502, "Extraction failed; no results from this request were saved.") from None
 
 

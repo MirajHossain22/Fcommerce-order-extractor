@@ -26,6 +26,8 @@ services:
         value: 10000
       - key: FORWARDED_ALLOW_IPS
         value: "*"
+      - key: EXTRACTION_FALLBACK
+        value: "1"
     disk:
       name: order-data
       mountPath: /data

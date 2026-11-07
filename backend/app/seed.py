@@ -235,3 +235,4 @@ def auto_seed_if_empty(database: Path, seller: str = "local-shop") -> bool:
     except Exception:
         pass
     return False
+
