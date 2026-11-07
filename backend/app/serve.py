@@ -28,6 +28,12 @@ def build_app():
         raise ValueError("Set SELLER_API_KEYS with at least one random key of 32 or more characters")
     application = create_app(Path(raw_path), seller_keys=keys)
     application.add_middleware(TrustedHostMiddleware, allowed_hosts=hosts, www_redirect=False)
+    try:
+        from app.seed import auto_seed_if_empty
+        seller = next(iter(keys.values())) if keys else "local-shop"
+        auto_seed_if_empty(Path(raw_path), seller)
+    except Exception:
+        pass
     return application
 
 
