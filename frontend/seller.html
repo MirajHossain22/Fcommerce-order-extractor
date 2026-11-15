@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=2.7">
+  <link rel="stylesheet" href="./styles.css?v=2.8">
   <script src="/assets/seller.js" type="module"></script>
 </head>
 <body>
@@ -164,13 +164,20 @@
     </section>
 
     <details class="panel" id="catalog-panel">
-      <summary>
+      <summary class="catalog-summary">
         <span class="summary-left">
           <svg class="summary-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
-          <strong>Product Catalog &amp; Inventory</strong>
+          <strong class="catalog-summary-heading">Product Catalog &amp; Inventory</strong>
           <span id="catalog-count-badge" class="catalog-sku-pill">0 items</span>
         </span>
-        <span class="catalog-badge">Inventory Tracking</span>
+        <span class="catalog-summary-right">
+          <span class="catalog-badge">Inventory Tracking</span>
+          <span class="catalog-chevron-pill" aria-hidden="true">
+            <svg class="catalog-chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </span>
       </summary>
       <p class="small muted catalog-desc">Catalog items deduct stock automatically when a buyer confirms. Drafts do not reserve stock. Low stock flags &le; 5 units.</p>
 

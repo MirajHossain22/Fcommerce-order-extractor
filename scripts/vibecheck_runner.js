@@ -73,6 +73,32 @@ async function run() {
   fs.writeFileSync(path.join(ARTIFACT_DIR, 'vibecheck_seller_logged_in_desktop.png'), Buffer.from(shot.data, 'base64'));
   console.log('[✓] Saved vibecheck_seller_logged_in_desktop.png');
 
+  // Capture Catalog closed initial state
+  let closedShot = await send(ws, 'Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(ARTIFACT_DIR, 'vibecheck_catalog_closed.png'), Buffer.from(closedShot.data, 'base64'));
+
+  // Hover over catalog panel
+  console.log('[+] Simulating hover over catalog panel...');
+  const rect = await send(ws, 'Runtime.evaluate', {
+    expression: `(() => {
+      const p = document.getElementById('catalog-panel');
+      const r = p.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    })()`,
+    returnByValue: true
+  });
+  if (rect && rect.result && rect.result.value) {
+    await send(ws, 'Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: rect.result.value.x,
+      y: rect.result.value.y
+    });
+    await delay(400);
+    let hoverShot = await send(ws, 'Page.captureScreenshot', { format: 'png' });
+    fs.writeFileSync(path.join(ARTIFACT_DIR, 'vibecheck_catalog_hover.png'), Buffer.from(hoverShot.data, 'base64'));
+    console.log('[✓] Saved vibecheck_catalog_hover.png');
+  }
+
   // Also capture Catalog open
   console.log('[+] Opening catalog panel...');
   await send(ws, 'Runtime.evaluate', {
