@@ -201,12 +201,28 @@ function selectOrder(value) {
 }
 
 function renderOrders() {
-  $('stat-total').textContent = orders.length;
-  $('stat-draft').textContent = orders.filter(o => o.status === 'draft').length;
-  $('stat-active').textContent = orders.filter(o => ['confirmed', 'packed', 'shipped'].includes(o.status)).length;
-  $('stat-delivered').textContent = orders.filter(o => o.status === 'delivered').length;
+  const allCount = orders.length;
+  const draftCount = orders.filter(o => o.status === 'draft').length;
+  const activeCount = orders.filter(o => ['confirmed', 'packed', 'shipped'].includes(o.status)).length;
+  const deliveredCount = orders.filter(o => o.status === 'delivered').length;
+
+  $('stat-total').textContent = allCount;
+  $('stat-draft').textContent = draftCount;
+  $('stat-active').textContent = activeCount;
+  $('stat-delivered').textContent = deliveredCount;
+
+  if ($('count-all')) $('count-all').textContent = allCount;
+  if ($('count-draft')) $('count-draft').textContent = draftCount;
+  if ($('count-active')) $('count-active').textContent = activeCount;
+  if ($('count-delivered')) $('count-delivered').textContent = deliveredCount;
+
   const search = $('search').value.toLowerCase();
-  const filtered = orders.filter(o => (!$('filter').value || o.status === $('filter').value) && [o.reference, o.customer_name, ...o.items.map(i => i.product), o.extracted_order?.product].join(' ').toLowerCase().includes(search));
+  const filterVal = $('filter').value;
+  const filtered = orders.filter(o => {
+    if (filterVal === 'in_progress') return ['confirmed', 'packed', 'shipped'].includes(o.status);
+    if (filterVal) return o.status === filterVal;
+    return true;
+  }).filter(o => [o.reference, o.customer_name, ...o.items.map(i => i.product), o.extracted_order?.product].join(' ').toLowerCase().includes(search));
   $('order-list').replaceChildren();
   for (const order of filtered) {
     const card = node('button', '', 'order-card' + (selected?.reference === order.reference ? ' selected' : ''));
@@ -225,7 +241,9 @@ function renderOrders() {
       node('span', money(order.total_paisa), 'num order-price')
     );
     content.append(bottom);
-    card.append(avatar, content);
+    const chevron = node('span', '', 'card-chevron');
+    chevron.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+    card.append(avatar, content, chevron);
     card.addEventListener('click', () => { if (!busy && canLeave()) selectOrder(order); });
     $('order-list').append(card);
   }
@@ -322,7 +340,11 @@ function renderCatalog() {
 
 async function openWorkspace(session) {
   csrf = session.csrf_token;
-  $('seller-name').textContent = session.seller_id;
+  if ($('seller-name')) $('seller-name').textContent = session.seller_id;
+  if ($('shop-label')) $('shop-label').textContent = session.seller_id;
+  if ($('merchant-initials')) {
+    $('merchant-initials').textContent = (session.seller_id || 'LS').slice(0, 2).toUpperCase();
+  }
   $('login-panel').hidden = true;
   $('workspace').hidden = false;
   await refresh();
@@ -415,6 +437,17 @@ form.addEventListener('submit', event => {
   });
 });
 
+document.querySelectorAll('.sample-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const textarea = $('chat-message');
+    if (textarea && chip.dataset.msg) {
+      textarea.value = chip.dataset.msg;
+      textarea.focus();
+      notice('message', 'Sample message loaded! Click "Extract order with AI" to parse it.');
+    }
+  });
+});
+
 $('extract').addEventListener('click', () => {
   if (canLeave()) run(async () => {
     const message = $('chat-message').value.trim();
@@ -449,6 +482,17 @@ $('refresh').addEventListener('click', () => {
 $('search').addEventListener('input', renderOrders);
 $('filter').addEventListener('change', renderOrders);
 
+document.querySelectorAll('.filter-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    $('filter').value = pill.dataset.filter;
+    document.querySelectorAll('.filter-pill').forEach(p => {
+      p.classList.toggle('active', p === pill);
+      p.setAttribute('aria-selected', p === pill ? 'true' : 'false');
+    });
+    renderOrders();
+  });
+});
+
 $('create-link').addEventListener('click', () => run(async () => {
   const linkBtn = $('create-link');
   const originalText = linkBtn.textContent;
@@ -479,6 +523,27 @@ $('copy-link').addEventListener('click', () => run(async () => {
   } catch {
     $('share-url').select();
     notice('message', 'Select and copy the link above.');
+  }
+}));
+
+$('copy-chat-msg')?.addEventListener('click', () => run(async () => {
+  const url = $('share-url').value;
+  if (!url) return;
+  const shop = (selected?.shop_name || 'আমাদের শপ').trim();
+  const customer = (selected?.customer_name || '').trim();
+  const greeting = customer ? `প্রিয় ${customer},` : 'আসসালামু আলাইকুম!';
+  const message = `${greeting} ${shop} থেকে আপনার অর্ডার ড্রাফট তৈরি করা হয়েছে।\nনিচের নিরাপদ লিংকে ক্লিক করে আপনার ডেলিভারি ঠিকানা নিশ্চিত করুন:\n\n${url}\n\n✓ ১০০% ক্যাশ অন ডেলিভারি (পণ্য পেয়ে মূল্য পরিশোধ)\n✓ কোনো অগ্রিম ফি নেই`;
+
+  try {
+    await navigator.clipboard.writeText(message);
+    const textSpan = $('copy-chat-text');
+    if (textSpan) textSpan.textContent = '✓ মেসেজ কপি হয়েছে! চ্যাটে পেস্ট করুন (Copied)';
+    setTimeout(() => {
+      if (textSpan) textSpan.textContent = 'Copy Messenger message · মেসেঞ্জার বার্তা কপি করুন';
+    }, 2500);
+    notice('message', 'Ready-to-send Messenger message copied to clipboard.');
+  } catch {
+    notice('message', 'Could not copy automatically. Copy the link above.');
   }
 }));
 

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=2.1">
   <script src="/assets/buyer.js" type="module"></script>
 </head>
 <body class="buyer-body">
@@ -25,64 +25,148 @@
     </div>
     <div id="buyer-content" class="buyer-grid" hidden>
       <section class="panel summary-card">
-        <h2 id="shop-name"></h2>
-        <p id="buyer-reference" class="small muted order-ref"></p>
-        <div id="buyer-items"></div>
-        <div class="price-row">
-          <span>Delivery · ডেলিভারি চার্জ</span>
+        <div class="panel-header-badge">
+          <span class="step-num" aria-hidden="true">1</span>
+          <div>
+            <h2 id="shop-name"></h2>
+            <p id="buyer-reference" class="small muted order-ref"></p>
+          </div>
+        </div>
+        <div id="buyer-items" class="buyer-items-container"></div>
+        <div class="price-row subtotal-row">
+          <span>Delivery charge · ডেলিভারি চার্জ</span>
           <span id="delivery-price" class="num"></span>
         </div>
         <div class="price-row grand-total">
-          <strong>Total to pay · সর্বমোট</strong>
-          <strong id="buyer-total" class="num"></strong>
+          <div>
+            <strong>Total to pay · সর্বমোট</strong>
+            <span class="cod-tag">ক্যাশ অন ডেলিভারি</span>
+          </div>
+          <strong id="buyer-total" class="num grand-amount"></strong>
         </div>
-        <div class="payment-note">
-          <strong>Cash on delivery · ক্যাশ অন ডেলিভারি</strong>
-          <span class="small muted">পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন। Pay when you receive your parcel.</span>
+        <div class="cod-trust-badge">
+          <div class="cod-badge-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <div class="cod-badge-text">
+            <strong>১০০% ক্যাশ অন ডেলিভারি (Cash on Delivery)</strong>
+            <span>পার্সেল হাতে পেয়ে ডেলিভারিম্যানকে টাকা দিন। অগ্রিম কোনো ফি নেই।</span>
+          </div>
         </div>
       </section>
       <section class="panel" id="delivery-panel">
-        <h2>Where should we send it?</h2>
-        <p class="small muted">আপনার নাম, মোবাইল নম্বর ও সম্পূর্ণ ডেলিভারির ঠিকানা দিন।</p>
-        <form id="buyer-form">
+        <div class="panel-header-badge">
+          <span class="step-num" aria-hidden="true">2</span>
+          <div>
+            <h2>Where should we send it?</h2>
+            <p class="small muted">আপনার নাম, মোবাইল নম্বর ও সম্পূর্ণ ডেলিভারির ঠিকানা দিন।</p>
+          </div>
+        </div>
+        <form id="buyer-form" novalidate>
           <fieldset id="buyer-fields">
-            <label>
-              Your name · আপনার নাম
-              <input name="customer_name" autocomplete="name" required maxlength="200" placeholder="e.g. Tanvir Ahmed">
-            </label>
-            <label>
-              Mobile number · মোবাইল নম্বর
-              <input name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="40" placeholder="01XXXXXXXXX">
-            </label>
-            <label>
-              Delivery address · ডেলিভারির ঠিকানা
-              <textarea name="address" rows="4" autocomplete="street-address" required maxlength="2000" placeholder="House, road, area, thana, district / বাসা, রাস্তা, এলাকা, জেলা"></textarea>
-            </label>
-            <p class="small muted">Review your items, size, color and total. To change an item, ask the seller for an updated link before confirming.</p>
-            <button id="confirm-order" type="submit" class="full-width">Confirm order · অর্ডার নিশ্চিত করুন</button>
+            <div class="field-group">
+              <label for="buyer-name">
+                Your name · আপনার নাম
+              </label>
+              <input id="buyer-name" name="customer_name" autocomplete="name" autocorrect="off" enterkeyhint="next" required maxlength="200" placeholder="e.g. Tanvir Ahmed">
+            </div>
+            <div class="field-group">
+              <label for="buyer-phone">
+                Mobile number · মোবাইল নম্বর
+              </label>
+              <input id="buyer-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" enterkeyhint="next" required maxlength="15" placeholder="01XXXXXXXXX">
+              <span class="field-hint" id="phone-hint">১১ ডিজিটের সচল নম্বর (ডেলিভারির সময় কল করা হবে)</span>
+            </div>
+            <div class="field-group">
+              <label for="buyer-address">
+                Delivery address · ডেলিভারির ঠিকানা
+              </label>
+              <textarea id="buyer-address" name="address" rows="3" autocomplete="street-address" enterkeyhint="done" required maxlength="2000" placeholder="House, road, area, thana, district / বাসা নং, রোড নং, থানা, জেলা"></textarea>
+            </div>
+            <div class="cta-wrapper">
+              <button id="confirm-order" type="submit" class="full-width btn-primary-cta">
+                <span class="btn-text">Confirm order · অর্ডার নিশ্চিত করুন</span>
+                <span class="btn-arrow" aria-hidden="true">→</span>
+              </button>
+              <div class="cta-trust-guarantee">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>কোনো অগ্রিম পেমেন্ট নেই · ক্যাশ অন ডেলিভারি</span>
+              </div>
+            </div>
           </fieldset>
         </form>
       </section>
-      <section class="panel" id="receipt-panel" hidden>
-        <div class="success-mark" aria-hidden="true">✓</div>
-        <h2>Order confirmed!</h2>
-        <p>Your seller has received your delivery details. Keep your private tracking link to follow your parcel updates.</p>
-        <a id="tracking-link" class="button full-width" href="#">Follow order updates · অর্ডার ট্র্যাকিং করুন</a>
-        <p class="small muted" style="margin-top:16px">আপনার অর্ডার নিশ্চিত হয়েছে। লিংকটি সংরক্ষণ করে রাখুন।</p>
+      <section class="panel receipt-card" id="receipt-panel" hidden>
+        <div class="success-mark-wrapper">
+          <div class="success-mark" aria-hidden="true">✓</div>
+        </div>
+        <h2>Order confirmed! · অর্ডার সম্পন্ন হয়েছে</h2>
+        <p class="receipt-lead">আপনার ডেলিভারির তথ্য বিক্রেতার কাছে পাঠানো হয়েছে। পার্সেল ডেলিভারি ট্র্যাক করতে নিচের লিংকটি সেভ রাখুন।</p>
+        <div class="receipt-actions">
+          <a id="tracking-link" class="button full-width btn-primary-cta" href="#">
+            <span>Follow order updates · লাইভ ট্র্যাকিং দেখুন</span>
+            <span class="btn-arrow" aria-hidden="true">→</span>
+          </a>
+          <button id="copy-tracking-btn" type="button" class="secondary full-width copy-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span id="copy-btn-text">Copy tracking link · ট্র্যাকিং লিংক কপি করুন</span>
+          </button>
+        </div>
+        <p class="small muted" style="margin-top:16px;text-align:center">আপনার অর্ডার নিশ্চিত হয়েছে। লিংকটি বুকমার্ক বা মেসেঞ্জারে সেভ করে রাখুন।</p>
       </section>
       <section class="panel" id="tracking-panel" hidden>
-        <h2 id="tracking-status"></h2>
-        <p class="small muted">Updates are entered by your seller as your parcel moves. This is not a live courier feed.</p>
+        <div class="tracking-top">
+          <div>
+            <h2 id="tracking-status"></h2>
+            <p class="small muted">Updates are entered by your seller as your parcel moves.</p>
+          </div>
+        </div>
+        <div class="tracking-stepper" id="tracking-stepper">
+          <div class="stepper-step" data-step="confirmed">
+            <div class="stepper-node"><span class="node-icon">1</span></div>
+            <div class="stepper-meta">
+              <strong>Confirmed</strong>
+              <span>অর্ডার নিশ্চিত</span>
+            </div>
+          </div>
+          <div class="stepper-line" data-line="1"></div>
+          <div class="stepper-step" data-step="packed">
+            <div class="stepper-node"><span class="node-icon">2</span></div>
+            <div class="stepper-meta">
+              <strong>Packed</strong>
+              <span>প্যাকিং সম্পন্ন</span>
+            </div>
+          </div>
+          <div class="stepper-line" data-line="2"></div>
+          <div class="stepper-step" data-step="shipped">
+            <div class="stepper-node"><span class="node-icon">3</span></div>
+            <div class="stepper-meta">
+              <strong>In Transit</strong>
+              <span>কুরিয়ারে হস্তান্তর</span>
+            </div>
+          </div>
+          <div class="stepper-line" data-line="3"></div>
+          <div class="stepper-step" data-step="delivered">
+            <div class="stepper-node"><span class="node-icon">4</span></div>
+            <div class="stepper-meta">
+              <strong>Delivered</strong>
+              <span>ডেলিভারি সম্পন্ন</span>
+            </div>
+          </div>
+        </div>
         <div id="shipment-details" class="shipment-card" hidden>
           <div class="shipment-header">
             <svg class="shipment-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             <div>
-              <strong>Courier Delivery</strong>
+              <strong>Courier Delivery · কুরিয়ার ডেলিভারি</strong>
               <p id="courier-info" class="small muted"></p>
             </div>
           </div>
         </div>
-        <ol id="tracking-history" class="timeline"></ol>
+        <div class="timeline-wrapper">
+          <h3 class="small muted timeline-heading">Order activity history · সময়রেখা</h3>
+          <ol id="tracking-history" class="timeline"></ol>
+        </div>
         <button id="refresh-tracking" class="secondary full-width">Refresh updates · আপডেট দেখুন</button>
       </section>
     </div>

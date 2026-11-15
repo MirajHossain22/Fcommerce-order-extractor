@@ -67,7 +67,7 @@ export function showHistory(container, history) {
           ? 'Returned items restocked'
           : entry.status.charAt(0).toUpperCase() + entry.status.slice(1)
     );
-    const time = node('time', new Date(entry.at).toLocaleString());
+    const time = node('time', new Date(entry.at).toLocaleString(), 'time');
     time.dateTime = entry.at;
     li.append(time);
     container.append(li);

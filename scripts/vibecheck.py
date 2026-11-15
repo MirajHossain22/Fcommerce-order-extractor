@@ -12,8 +12,10 @@ def main():
     db_path = root / "orders.sqlite3"
     drafts = [r for r in commerce.list_records(db_path, "local-shop") if r.get("status") == "draft" and r.get("items")]
     if not drafts:
-        subprocess.run([sys.executable, str(root / "scripts" / "seed_demo.py"), "--no-reset"], check=True)
-        drafts = [r for r in commerce.list_records(db_path, "local-shop") if r.get("status") == "draft" and r.get("items")]
+        item = {"product": "Premium Cotton Panjabi", "quantity": 1, "unit_price_paisa": 185000, "size": "L", "color": "Navy Blue"}
+        d = commerce.Draft(customer_name="Arif Hasan", delivery_charge_paisa=6000, items=[commerce.LineItem(**item)])
+        rec = commerce.create_draft(db_path, "local-shop", d)
+        drafts = [rec]
 
     buyer_path = commerce.create_link(db_path, "local-shop", drafts[0]["reference"], 72)["buyer_path"]
     print(f"[+] Active buyer path: {buyer_path}")

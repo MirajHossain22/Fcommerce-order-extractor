@@ -17,4 +17,7 @@ backups/
 .gemini/
 .hallmark/
 graphify-out/
+.agent/
+.vscode/
+.kilo/
 

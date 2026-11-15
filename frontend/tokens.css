@@ -46,9 +46,9 @@
   --z-tooltip: 600;
 
   /* Modern High-Contrast Obsidian / Slate Canvas */
-  --color-paper: oklch(14% 0.012 260);
+  --color-paper: oklch(13% 0.012 260);
   --color-paper-2: oklch(19% 0.016 260);
-  --color-paper-3: oklch(11% 0.008 260);
+  --color-paper-3: oklch(17.5% 0.015 260);
   --color-paper-hover: oklch(23% 0.02 260);
   --color-paper-active: oklch(25% 0.022 260);
 
