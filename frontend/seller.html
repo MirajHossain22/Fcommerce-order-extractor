@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=2.5">
+  <link rel="stylesheet" href="./styles.css?v=2.7">
   <script src="/assets/seller.js" type="module"></script>
 </head>
 <body>
@@ -168,25 +168,61 @@
         <span class="summary-left">
           <svg class="summary-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
           <strong>Product Catalog &amp; Inventory</strong>
+          <span id="catalog-count-badge" class="catalog-sku-pill">0 items</span>
         </span>
         <span class="catalog-badge">Inventory Tracking</span>
       </summary>
-      <p class="small muted">Catalog items deduct stock when a buyer confirms. Drafts do not reserve stock. Low stock badge highlights &le; 5 units.</p>
-      <form id="catalog-form">
-        <div class="field-grid">
-          <label>Product name<input id="catalog-product" required maxlength="200" placeholder="e.g. Premium Cotton Panjabi"></label>
-          <label>Unit price (BDT)<input id="catalog-price" type="number" min="0" max="1000000" step="0.01" required placeholder="e.g. 1850.00"></label>
-          <label>Size (optional)<input id="catalog-size" maxlength="80" placeholder="e.g. M, L, XL"></label>
-          <label>Color (optional)<input id="catalog-color" maxlength="80" placeholder="e.g. Navy Blue"></label>
-          <label>Available stock units<input id="catalog-stock" type="number" min="0" max="1000000" step="1" required placeholder="e.g. 15"></label>
+      <p class="small muted catalog-desc">Catalog items deduct stock automatically when a buyer confirms. Drafts do not reserve stock. Low stock flags &le; 5 units.</p>
+
+      <!-- Add Product Variant Subcard -->
+      <div class="add-variant-panel">
+        <div class="add-variant-header">
+          <span class="add-variant-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            <span>Add Product Variant</span>
+          </span>
+          <span class="add-variant-hint">Live stock tracking for buyer checkout</span>
         </div>
-        <button type="submit" class="secondary">+ Add product variant</button>
-      </form>
-      <div class="section-title">
-        <h2>Available variants</h2>
-        <button id="refresh-catalog" type="button" class="quiet">Refresh stock</button>
+        <form id="catalog-form" class="catalog-add-form">
+          <div class="catalog-fields-grid">
+            <label class="field-product">
+              <span>Product name</span>
+              <input id="catalog-product" required maxlength="200" placeholder="e.g. Premium Cotton Panjabi">
+            </label>
+            <label class="field-price">
+              <span>Unit price (BDT)</span>
+              <input id="catalog-price" type="number" min="0" max="1000000" step="0.01" required placeholder="e.g. 1850.00">
+            </label>
+            <label class="field-size">
+              <span>Size (optional)</span>
+              <input id="catalog-size" maxlength="80" placeholder="e.g. M, L, XL">
+            </label>
+            <label class="field-color">
+              <span>Color (optional)</span>
+              <input id="catalog-color" maxlength="80" placeholder="e.g. Navy Blue">
+            </label>
+            <label class="field-stock">
+              <span>Stock units</span>
+              <input id="catalog-stock" type="number" min="0" max="1000000" step="1" required placeholder="e.g. 15">
+            </label>
+            <div class="field-submit">
+              <button type="submit" class="btn-add-variant">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                <span>Add Variant</span>
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
-      <div id="catalog-list"></div>
+
+      <div class="section-title catalog-section-title">
+        <h2>Available Inventory Items</h2>
+        <button id="refresh-catalog" type="button" class="quiet refresh-stock-btn" title="Refresh inventory levels">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+          <span>Refresh stock</span>
+        </button>
+      </div>
+      <div id="catalog-list" class="inventory-table"></div>
     </details>
 
     <div class="desk-grid">
@@ -270,12 +306,27 @@
 
         <form id="draft-form">
           <fieldset id="draft-fields">
-            <label>Shop name<input name="shop_name" required maxlength="200" value="Online shop"></label>
-            <div class="section-title">
-              <h3>What are they ordering?</h3>
-              <button id="add-item" type="button" class="quiet">+ Add line item</button>
+            <div class="shop-name-card">
+              <label>
+                <span class="field-micro-label">Shop name</span>
+                <div class="shop-input-wrap">
+                  <svg class="shop-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path><path d="M2 7h20"></path></svg>
+                  <input name="shop_name" required maxlength="200" value="Online shop" class="shop-input" placeholder="e.g. My Online Store">
+                </div>
+              </label>
             </div>
-            <div id="line-items"></div>
+
+            <div class="section-title items-section-title">
+              <div class="title-with-badge">
+                <h3>What are they ordering?</h3>
+                <span class="small muted">Confirm items, sizing &amp; stock tracking</span>
+              </div>
+              <button id="add-item" type="button" class="btn-add-line-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                <span>Add line item</span>
+              </button>
+            </div>
+            <div id="line-items" class="line-items-container"></div>
             <p class="small muted">Select a catalog variant to track stock automatically. Confirm size, color, quantity and price before creating a checkout link.</p>
             <div class="field-grid">
               <label>Delivery charge (BDT)<input name="delivery" type="number" min="0" max="1000000" step="0.01" value="0" required></label>

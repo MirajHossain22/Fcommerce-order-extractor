@@ -77,18 +77,71 @@ function populatePicker(picker, variantId = '') {
 }
 
 function addItem(item = {}) {
-  const row = node('div', '', 'line-item');
-  row.innerHTML = '<label>Product<input data-field="product" required maxlength="300" placeholder="e.g. Cotton panjabi"></label><div class="field-grid"><label>Size<input data-field="size" placeholder="e.g. M"></label><label>Color<input data-field="color" placeholder="e.g. Blue"></label></div><div class="field-grid"><label>Quantity<input data-field="quantity" type="number" min="1" max="10000" step="1" required></label><label>Unit price (BDT)<input data-field="price" type="number" min="0" max="1000000" step="0.01" required></label></div><button type="button" class="quiet">Remove item</button>';
+  const row = node('div', '', 'line-item line-item-card');
+  const itemIndex = $('line-items').children.length + 1;
+
+  // Header of line item: Badge + Stock tracking + Remove button
+  const head = node('div', '', 'line-item-head');
+
+  const headLeft = node('div', '', 'line-item-meta');
+  const indexBadge = node('span', `Item #${itemIndex}`, 'item-num-badge');
+  const catalogLabel = node('label', '', 'stock-picker-label');
+  catalogLabel.append(node('span', 'Stock tracking', 'field-micro-label'));
+  const picker = document.createElement('select');
+  picker.dataset.field = 'variant';
+  picker.className = 'stock-picker-select';
+  populatePicker(picker, item.variant_id || '');
+  catalogLabel.append(picker);
+  headLeft.append(indexBadge, catalogLabel);
+
+  const removeBtn = node('button', '', 'btn-remove-item');
+  removeBtn.type = 'button';
+  removeBtn.title = 'Remove line item';
+  removeBtn.setAttribute('aria-label', 'Remove item');
+  removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg><span>Remove</span>';
+
+  head.append(headLeft, removeBtn);
+  row.append(head);
+
+  // Body Fields
+  const body = node('div', '', 'line-item-body');
+  body.innerHTML = `
+    <label class="field-full">
+      <span class="field-micro-label">Product Name</span>
+      <input data-field="product" required maxlength="300" placeholder="e.g. Cotton panjabi" class="item-input">
+    </label>
+    <div class="field-grid">
+      <label>
+        <span class="field-micro-label">Size (optional)</span>
+        <input data-field="size" placeholder="e.g. M, L, XL" class="item-input">
+      </label>
+      <label>
+        <span class="field-micro-label">Color (optional)</span>
+        <input data-field="color" placeholder="e.g. Navy Blue" class="item-input">
+      </label>
+    </div>
+    <div class="field-grid">
+      <label>
+        <span class="field-micro-label">Quantity</span>
+        <input data-field="quantity" type="number" min="1" max="10000" step="1" required class="item-input quantity-input">
+      </label>
+      <label>
+        <span class="field-micro-label">Unit Price (BDT)</span>
+        <input data-field="price" type="number" min="0" max="1000000" step="0.01" required placeholder="0.00" class="item-input price-input">
+      </label>
+    </div>
+  `;
+
+  row.append(body);
+
   for (const name of ['product', 'size', 'color']) row.querySelector(`[data-field="${name}"]`).value = item[name] || '';
   row.querySelector('[data-field="quantity"]').value = item.quantity ?? 1;
   row.querySelector('[data-field="price"]').value = item.unit_price_paisa === undefined ? '' : (item.unit_price_paisa / 100).toFixed(2);
   row.dataset.productId = item.product_id || '';
   row.dataset.variantId = item.variant_id || '';
-  const catalogLabel = node('label', 'Stock tracking');
-  const picker = document.createElement('select');
-  picker.dataset.field = 'variant';
-  populatePicker(picker, item.variant_id || '');
+
   for (const name of ['product', 'size', 'color']) row.querySelector(`[data-field="${name}"]`).readOnly = Boolean(item.variant_id);
+
   picker.addEventListener('change', () => {
     const variant = catalog.find(v => v.variant_id === picker.value);
     row.dataset.productId = variant?.product_id || '';
@@ -101,9 +154,17 @@ function addItem(item = {}) {
     if (variant) row.querySelector('[data-field="price"]').value = (variant.unit_price_paisa / 100).toFixed(2);
     changed();
   });
-  catalogLabel.append(picker);
-  row.prepend(catalogLabel);
-  row.querySelector('button').addEventListener('click', () => { row.remove(); changed(); });
+
+  removeBtn.addEventListener('click', () => {
+    row.remove();
+    let idx = 1;
+    for (const itemRow of $('line-items').children) {
+      const badge = itemRow.querySelector('.item-num-badge');
+      if (badge) badge.textContent = `Item #${idx++}`;
+    }
+    changed();
+  });
+
   $('line-items').append(row);
 }
 
@@ -266,15 +327,49 @@ function renderCatalog() {
   for (const row of $('line-items').children) {
     populatePicker(row.querySelector('[data-field=variant]'), row.dataset.variantId || '');
   }
+  if ($('catalog-count-badge')) {
+    const totalUnits = catalog.reduce((acc, v) => acc + (v.stock || 0), 0);
+    $('catalog-count-badge').textContent = `${catalog.length} ${catalog.length === 1 ? 'item' : 'items'} · ${totalUnits} units`;
+  }
   $('catalog-list').replaceChildren();
   for (const variant of catalog) {
-    const row = node('form', '', 'line-item');
-    row.append(
-      node('strong', `${variant.product} · ${variant.size || '—'} · ${variant.color || '—'}`),
-      node('p', `${variant.stock} available${variant.stock <= 5 ? ' · Low stock' : ''}${variant.active ? '' : ' · Inactive'}`, 'small muted')
+    const row = node('form', '', 'inventory-row');
+
+    // Left: Product identity and pills
+    const info = node('div', '', 'inv-info');
+    const titleLine = node('div', '', 'inv-title-line');
+    titleLine.append(node('strong', variant.product, 'inv-product-name'));
+    if (variant.size) {
+      titleLine.append(node('span', variant.size, 'inv-tag inv-tag-size'));
+    }
+    if (variant.color) {
+      titleLine.append(node('span', variant.color, 'inv-tag inv-tag-color'));
+    }
+
+    const metaLine = node('div', '', 'inv-meta-line');
+    let stockClass = 'badge in-stock';
+    let stockLabel = `${variant.stock} in stock`;
+    if (!variant.active) {
+      stockClass = 'badge inactive-stock';
+      stockLabel = 'Inactive';
+    } else if (variant.stock === 0) {
+      stockClass = 'badge out-of-stock';
+      stockLabel = 'Out of stock';
+    } else if (variant.stock <= 5) {
+      stockClass = 'badge low-stock';
+      stockLabel = `${variant.stock} low stock`;
+    }
+    metaLine.append(
+      node('span', stockLabel, stockClass),
+      node('span', `SKU: ${variant.variant_id.slice(0, 8)}`, 'inv-sku')
     );
-    const fields = node('div', '', 'field-grid');
-    const stockLabel = node('label', 'Available units');
+    info.append(titleLine, metaLine);
+
+    // Right: Controls
+    const controls = node('div', '', 'inv-controls');
+
+    const stockGroup = node('label', '', 'inv-field');
+    stockGroup.append(node('span', 'Stock', 'inv-field-label'));
     const stock = document.createElement('input');
     stock.type = 'number';
     stock.min = 0;
@@ -282,8 +377,11 @@ function renderCatalog() {
     stock.step = 1;
     stock.required = true;
     stock.value = variant.stock;
-    stockLabel.append(stock);
-    const priceLabel = node('label', 'Unit price (BDT)');
+    stock.className = 'inv-input stock-input';
+    stockGroup.append(stock);
+
+    const priceGroup = node('label', '', 'inv-field');
+    priceGroup.append(node('span', 'Price (BDT)', 'inv-field-label'));
     const price = document.createElement('input');
     price.type = 'number';
     price.min = 0;
@@ -291,26 +389,34 @@ function renderCatalog() {
     price.step = '0.01';
     price.required = true;
     price.value = (variant.unit_price_paisa / 100).toFixed(2);
-    priceLabel.append(price);
-    fields.append(stockLabel, priceLabel);
-    row.append(fields);
-    const activeLabel = node('label', 'Availability');
+    price.className = 'inv-input price-input';
+    priceGroup.append(price);
+
+    const activeGroup = node('label', '', 'inv-field');
+    activeGroup.append(node('span', 'Status', 'inv-field-label'));
     const active = document.createElement('select');
+    active.className = 'inv-select';
     for (const [val, label] of [['true', 'Active'], ['false', 'Inactive']]) {
       const option = node('option', label);
       option.value = val;
       active.append(option);
     }
     active.value = String(variant.active);
-    activeLabel.append(active);
-    row.append(activeLabel);
-    const save = node('button', 'Save stock & price', 'secondary');
+    activeGroup.append(active);
+
+    const save = node('button', '', 'inv-save-btn');
     save.type = 'submit';
-    row.append(save);
+    save.title = 'Save stock and price';
+    save.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> <span>Save</span>';
+
+    controls.append(stockGroup, priceGroup, activeGroup, save);
+    row.append(info, controls);
+
     row.addEventListener('submit', event => {
       event.preventDefault();
       run(async () => {
-        save.innerHTML = '<span class="spinner"></span> Saving…';
+        save.disabled = true;
+        save.innerHTML = '<span class="spinner"></span>';
         try {
           await api(`/seller/catalog/${variant.variant_id}`, {
             method: 'PUT',
@@ -323,9 +429,10 @@ function renderCatalog() {
           });
           catalog = await api('/seller/catalog');
           renderCatalog();
-          notice('message', 'Catalog variant updated. Saved order prices remain unchanged.');
+          notice('message', 'Catalog variant updated.');
         } finally {
-          save.textContent = 'Save stock & price';
+          save.disabled = false;
+          save.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> <span>Save</span>';
         }
       });
     });

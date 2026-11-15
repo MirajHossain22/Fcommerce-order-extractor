@@ -73,6 +73,30 @@ async function run() {
   fs.writeFileSync(path.join(ARTIFACT_DIR, 'vibecheck_seller_logged_in_desktop.png'), Buffer.from(shot.data, 'base64'));
   console.log('[✓] Saved vibecheck_seller_logged_in_desktop.png');
 
+  // Also capture Catalog open
+  console.log('[+] Opening catalog panel...');
+  await send(ws, 'Runtime.evaluate', {
+    expression: `(() => { const p = document.getElementById('catalog-panel'); if (p) p.open = true; })()`
+  });
+  await delay(600);
+  let catalogShot = await send(ws, 'Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(ARTIFACT_DIR, 'vibecheck_catalog_open.png'), Buffer.from(catalogShot.data, 'base64'));
+  console.log('[✓] Saved vibecheck_catalog_open.png');
+
+  // Close catalog and scroll draft editor into view
+  await send(ws, 'Runtime.evaluate', {
+    expression: `(() => {
+      const p = document.getElementById('catalog-panel');
+      if (p) p.open = false;
+      const desk = document.querySelector('.desk');
+      if (desk) desk.scrollTop = 520;
+    })()`
+  });
+  await delay(600);
+  let draftShot = await send(ws, 'Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(ARTIFACT_DIR, 'vibecheck_draft_builder.png'), Buffer.from(draftShot.data, 'base64'));
+  console.log('[✓] Saved vibecheck_draft_builder.png');
+
   // Capture Mobile Seller Dashboard (390x844)
   console.log('[+] Capturing Mobile Seller Dashboard (390x844)...');
   await send(ws, 'Emulation.setDeviceMetricsOverride', {
