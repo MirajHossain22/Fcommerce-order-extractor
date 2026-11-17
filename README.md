@@ -36,7 +36,7 @@ Validated Gemini extraction · deterministic regex baseline · FastAPI + SQLite 
 <br />
 
 > [!IMPORTANT]
-> ### 🔑 Reviewer & Evaluator Access (Credosis Team)
+> ### 🔑 Reviewer & Evaluator Access
 > - **Live Storefront URL:** **[https://fcommerce-order-extractor.onrender.com/](https://fcommerce-order-extractor.onrender.com/)**
 > - **Seller Access Key:** `demo-seller-key`
 > - **Zero-Friction Login:** When opening the live link, click the **"⚡ Fill Demo Key"** button right on the login screen to enter the seller workspace in one click.
